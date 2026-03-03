@@ -1,0 +1,6 @@
+# 모든 파일에 대해 백엔드 팀을 리뷰어로 자동 할당
+* @gamyeon-dev/backend-team
+
+# 만약 파이썬 관련 설정 파일(requirements.txt 등)만 특정인이 보게 하고 싶다면
+# requirements.txt @gamyeon-dev/backend-team
+# pyproject.toml @gamyeon-dev/backend-team
