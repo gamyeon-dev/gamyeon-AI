@@ -120,13 +120,8 @@ AI가 면접관 역할을 수행합니다.
     ./gradlew bootRun
 
   Python AI 서버
+  PS C:\Users\user\Documents\GitHub\gamyeon-AI> uv run uvicorn app.main:app --reload
 
-    git clone https://github.com/your-org/gamyeon-ai.git
-    cd gamyeon-ai
-    cp .env.example .env
-    # .env에 API 키 입력
-    uv sync
-    uv run fastapi dev app/main.py
 
   환경변수 (.env)
 
