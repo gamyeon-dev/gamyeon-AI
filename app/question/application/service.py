@@ -1,17 +1,21 @@
 import asyncio
 from app.question.application.port.s3_download_port import S3DownloadPort
 from app.question.application.port.pdf_extract_port import PdfExtractPort
+from app.question.application.port.structuring_port import StructuringPort
+from app.question.domain.interview_input import InterviewInput
 from app.question.infrastructure.pymupdf_adapter import MAX_CHARS_RESUME, MAX_CHARS_OTHER
-# local file version
+
 class QuestionService:
 
     def __init__(
         self,
         s3_download_port: S3DownloadPort,
         pdf_extract_port: PdfExtractPort,
+        structuring_port: StructuringPort,
     ):
         self.s3_download_port = s3_download_port
         self.pdf_extract_port = pdf_extract_port
+        self.structuring_port = structuring_port
 
     async def parse_and_generate(
         self,
@@ -37,9 +41,20 @@ class QuestionService:
             self.pdf_extract_port.extract(self_intro_bytes, max_chars=MAX_CHARS_OTHER) if self_intro_bytes else asyncio.sleep(0, result=None),
         )
 
-        # 추출 결과 확인 (임시 반환)
+        # [4단계] LLM 구조화
+        interview_input: InterviewInput = await self.structuring_port.structure(
+            resume_text=resume_text,
+            job_role=job_role,
+            portfolio_text=portfolio_text,
+            self_intro_text=self_intro_text,
+        )
+
+        # 임시 반환 (질문 생성 로직은 다음 단계)
         return [
-            f"resume_text: {resume_text[:100]}",
-            f"portfolio_text: {portfolio_text[:100] if portfolio_text else 'None'}",
-            f"self_intro_text: {self_intro_text[:100] if self_intro_text else 'None'}",
+            f"name: {interview_input.name}",
+            f"job_role: {interview_input.job_role}",
+            f"core_competencies: {interview_input.core_competencies}",
+            f"career_summary: {interview_input.career_summary}",
+            f"work_experiences: {interview_input.work_experiences}",
+            f"projects: {interview_input.projects}",
         ]
