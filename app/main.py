@@ -17,8 +17,8 @@ async def lifespan(app: FastAPI) :
     c.agent.service.register(
         name = "agentapi-app",
         service_id = SERVICE_ID,
-        address = EXTERNAL_HOST_IP,
-        port = 8500,
+        address = "AGENT-SERVER",
+        port = 8000,
         check = consul.Check.http(f"http://{EC2_PUBLIC_IP}:8000/health", interval = "10s")
     )
     print("Consul 등록 완료")
