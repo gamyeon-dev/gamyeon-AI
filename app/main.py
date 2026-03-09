@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from core.consul_helper import ConsulHelper
+from app.core import ConsulHelper
 from dotenv import load_dotenv
 import consul, os
 
