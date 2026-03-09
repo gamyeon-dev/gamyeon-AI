@@ -16,4 +16,4 @@ COPY . /app
 # 가상환경의 파이썬과 라이브러리를 사용하도록 경로 추가
 ENV PATH="/app/.venv/bin:$PATH"
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
