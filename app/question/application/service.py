@@ -2,7 +2,7 @@ import asyncio
 from app.question.application.port.s3_download_port import S3DownloadPort
 from app.question.application.port.pdf_extract_port import PdfExtractPort
 from app.question.application.port.structuring_port import StructuringPort
-from app.question.domain.interview_input import InterviewInput
+from app.question.application.port.question_gen_port import QuestionGenPort
 from app.question.infrastructure.pymupdf_adapter import MAX_CHARS_RESUME, MAX_CHARS_OTHER
 
 class QuestionService:
@@ -12,10 +12,12 @@ class QuestionService:
         s3_download_port: S3DownloadPort,
         pdf_extract_port: PdfExtractPort,
         structuring_port: StructuringPort,
+        question_gen_port: QuestionGenPort,
     ):
         self.s3_download_port = s3_download_port
         self.pdf_extract_port = pdf_extract_port
         self.structuring_port = structuring_port
+        self.question_gen_port = question_gen_port
 
     async def parse_and_generate(
         self,
@@ -42,19 +44,14 @@ class QuestionService:
         )
 
         # [4단계] LLM 구조화
-        interview_input: InterviewInput = await self.structuring_port.structure(
+        interview_input = await self.structuring_port.structure(
             resume_text=resume_text,
             job_role=job_role,
             portfolio_text=portfolio_text,
             self_intro_text=self_intro_text,
         )
 
-        # 임시 반환 (질문 생성 로직은 다음 단계)
-        return [
-            f"name: {interview_input.name}",
-            f"job_role: {interview_input.job_role}",
-            f"core_competencies: {interview_input.core_competencies}",
-            f"career_summary: {interview_input.career_summary}",
-            f"work_experiences: {interview_input.work_experiences}",
-            f"projects: {interview_input.projects}",
-        ]
+        # [5단계] 질문 생성
+        questions = await self.question_gen_port.generate(interview_input)
+
+        return questions
