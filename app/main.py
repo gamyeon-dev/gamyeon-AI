@@ -10,15 +10,15 @@ load_dotenv()
 consul_host = os.getenv("CONSUL_HOST", "localhost")
 c = consul.Consul(host = consul_host, port = 8500)
 
-consul_helper = ConsulHelper(host="consul")
-config = consul_helper("config/agent/settings")
-
-SERVICE_ID = config.get("SERVICE_ID", "DEFAULT-SERVER")
-EXTERNAL_HOST_IP = config.get("EXTERNAL_HOST_IP", "127.0.0.1")
-EC2_PUBLIC_IP = config.get("EC2_PUBLIC_IP", "0.0.0.0")
-
 @asynccontextmanager
 async def lifespan(app: FastAPI) :
+    consul_helper = ConsulHelper(host="consul")
+    config = consul_helper("config/agent/settings")
+
+    SERVICE_ID = config.get("SERVICE_ID", "DEFAULT-SERVER")
+    EXTERNAL_HOST_IP = config.get("EXTERNAL_HOST_IP", "127.0.0.1")
+    EC2_PUBLIC_IP = config.get("EC2_PUBLIC_IP", "0.0.0.0")
+
     c.agent.service.register(
         name = "agent-api",
         service_id = SERVICE_ID,
