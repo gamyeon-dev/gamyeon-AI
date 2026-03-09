@@ -15,7 +15,7 @@ EC2_PUBLIC_IP = "15.164.229.233"
 @asynccontextmanager
 async def lifespan(app: FastAPI) :
     c.agent.service.register(
-        name = "agentapi-app",
+        name = "AGENT-SERVER",
         service_id = SERVICE_ID,
         address = "AGENT-SERVER",
         port = 8000,
