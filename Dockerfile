@@ -1,12 +1,19 @@
-FROM python:3.12-slim
-# 컨테이너에 uv 설치
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uv /bin/uv/
+# 1단계: 빌드 환경 (uv 사용)
+FROM python:3.12-slim AS builder
+
 WORKDIR /app
-# uv.lock과 pyproject.toml만 먼저 복사하여 의존성 캐시 활용
 COPY uv.lock pyproject.toml /app/
-# uv sync로 의존성 설치
-RUN uv sync --frozen
-# 소스 코드 복사
+# 가상환경을 /app/.venv에 생성
+RUN uv sync --frozen --no-dev
+
+# 2단계: 실행 환경 (실제 앱 구동)
+FROM python:3.12-slim
+WORKDIR /app
+# 빌드 환경에서 만든 가상환경만 복사
+COPY --from=builder /app/.venv /app/.venv
 COPY . /app
-# 애플리케이션 실행
-CMD ["/app/.venv/bin/uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+# 가상환경의 파이썬과 라이브러리를 사용하도록 경로 추가
+ENV PATH="/app/.venv/bin:$PATH"
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
