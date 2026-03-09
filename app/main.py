@@ -41,5 +41,5 @@ def health_check():
     return {
         "status": "ok", 
         "message": "AI server is running",
-        "key_value": f"{c.key.get(KEY)['value']}"
+        "key_value": f"{c.kv.get(KEY)[1]['value'].decode('utf-8')}"
     }
