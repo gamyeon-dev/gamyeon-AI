@@ -11,6 +11,7 @@ c = consul.Consul(host = consul_host, port = 8500)
 SERVICE_ID = "AGENT-SERVER"
 EXTERNAL_HOST_IP = "172.17.0.1"
 EC2_PUBLIC_IP = "15.164.229.233"
+KEY = "config/app/test"
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) :
@@ -37,4 +38,8 @@ app = FastAPI(
 
 @app.get("/health")
 def health_check():
-    return {"status": "ok", "message": "AI server is running"}
+    return {
+        "status": "ok", 
+        "message": "AI server is running",
+        "key_value": f"{c.key.get(KEY)['value']}"
+    }
