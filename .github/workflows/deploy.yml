@@ -1,7 +1,7 @@
 name: Deploy FastAPI
 on:
   push:
-    branches: ["develop"]
+    branches: ["infra/consul"]
 
 jobs:
   build-and-push:

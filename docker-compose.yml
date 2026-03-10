@@ -1,9 +1,15 @@
-version: "3.8"
 services:
   fastapi-agent:
     image: zzang6535/gamyeon-agent:latest
     restart: always
-    ports:
+    container_name: fastapi-app
+    networks:
+      - gamyeon-net
+      ports:
       - "8000:8000"
     environment:
-      - CONSUL_HOST=172.17.0.1
+      - CONSUL_HOST=consul
+
+networks:
+  gamyeon-net:
+    external: true  # 외부 네트워크 연결
