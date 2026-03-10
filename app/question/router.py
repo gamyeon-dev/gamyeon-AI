@@ -9,7 +9,7 @@ from app.question.infrastructure.di import (
 )
 from app.question.application.service import QuestionService
 
-router = APIRouter(prefix="/question", tags=["question"])
+router = APIRouter(prefix="/internal/v1/question", tags=["question"])
 
 @router.post("/generate", response_model=QuestionGenerateResponse)
 async def generate_question(request: QuestionGenerateRequest):
