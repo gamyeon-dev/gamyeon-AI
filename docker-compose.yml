@@ -3,13 +3,8 @@ services:
     image: zzang6535/gamyeon-agent:latest
     restart: always
     container_name: AGENT_SERVER
-    networks:
-      - gamyeon-net
-      ports:
+    ports:
       - "8000:8000"
     environment:
       - CONSUL_HOST=consul
-
-networks:
-  gamyeon-net:
-    external: true  # 외부 네트워크 연결
+# 외부 네트워크 연결
