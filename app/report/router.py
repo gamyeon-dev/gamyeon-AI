@@ -1,3 +1,5 @@
+from dataclasses import asdict
+
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.report.application.service import ReportService
@@ -5,29 +7,38 @@ from app.report.infrastructure.di import get_report_service
 from app.report.schema.request import ReportRequest
 from app.report.schema.response import ReportResponse
 
-router = APIRouter(prefix="/api/ai/report", tags=["report"])
+
+# convention: /[prefix]/[version]/[domain]/[action]
+# → POST /internal/v1/report/generate
+router = APIRouter(prefix="/internal/v1/report", tags=["report"])
 
 
-@router.post("/generate", response_model=ReportResponse)
+@router.post("/generate")
 def generate_report(
     request: ReportRequest,
     service: ReportService = Depends(get_report_service),
-) -> ReportResponse:
+):
     try:
         result = service.execute(request)
     except ValueError as e:
-        raise HTTPException(status_code=422, detail=str(e))
+        # 성공 피드백 2개 이하 등 비즈니스 에러
+        # 공통 포맷을 detail에 실어 전달 → Spring이 그대로 사용
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "success": False,
+                "code": "RPRT_001",
+                "message": str(e),
+                "data": None,
+            },
+        )
 
-    return ReportResponse(
-        interview_id=result.interview_id,
-        job_category=result.job_category,
-        answered_count=result.answered_count,
-        avg_answer_duration_ms=result.avg_answer_duration_ms,
-        created_at=result.created_at,
-        report_accuracy=result.report_accuracy,
-        competency_scores=result.competency_scores,
-        total_score=result.total_score,
-        strengths=result.strengths,
-        weaknesses=result.weaknesses,
-        question_summaries=result.question_summaries,
-    )
+    # domain(dataclass) → dict → Pydantic 모델로 변환
+    response_data = ReportResponse.model_validate(asdict(result))
+
+    return {
+        "success": True,
+        "code": "S000",
+        "message": "success",
+        "data": response_data,
+    }
