@@ -1,5 +1,5 @@
 services:
-  fastapi-agent:
+  agent-server:
     image: zzang6535/gamyeon-agent:latest
     restart: always
     container_name: AGENT_SERVER

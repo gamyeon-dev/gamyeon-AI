@@ -34,4 +34,4 @@ jobs:
             docker login -u ${{ vars.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
             docker pull ${{ vars.DOCKERHUB_USERNAME }}/gamyeon-agent:latest
             cd ~/app
-            docker-compose up -d --no-deps fastapi-app
+            docker-compose up -d --no-deps agent-server
