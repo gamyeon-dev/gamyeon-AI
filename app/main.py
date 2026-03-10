@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from app.core import ConsulHelper
 from dotenv import load_dotenv
-import consul, os
+import consul, os, uuid
 
 load_dotenv()
 
@@ -19,9 +19,12 @@ async def lifespan(app: FastAPI) :
     EXTERNAL_HOST_IP = config.get("EXTERNAL_HOST_IP", "127.0.0.1")
     EC2_PUBLIC_IP = config.get("EC2_PUBLIC_IP", "0.0.0.0")
 
+    # UUID를 사용하여 매번 다른 ID 생성
+    unique_id = f"{SERVICE_ID}:{uuid.uuid4()}" 
+
     c.agent.service.register(
-        name = "agent-api",
-        service_id = SERVICE_ID,
+        name = SERVICE_ID,
+        service_id = unique_id,
         address = EXTERNAL_HOST_IP,
         port = 8000,
         check = consul.Check.http(f"http://{EC2_PUBLIC_IP}:8000/health", interval = "10s")
