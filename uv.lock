@@ -789,6 +789,7 @@ dependencies = [
     { name = "langgraph" },
     { name = "pydantic-settings" },
     { name = "pymupdf" },
+    { name = "python-consul" },
     { name = "python-dotenv" },
 ]
 
@@ -810,6 +811,7 @@ requires-dist = [
     { name = "langgraph", specifier = ">=1.0.9" },
     { name = "pydantic-settings", specifier = ">=2.13.1" },
     { name = "pymupdf", specifier = ">=1.27.1" },
+    { name = "python-consul", specifier = ">=1.1.0" },
     { name = "python-dotenv", specifier = ">=1.2.1" },
 ]
 
@@ -2232,6 +2234,16 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/66/c0/0c8b6ad9f17a802ee498c46e004a0eb49bc148f2fd230864601a86dcf6db/python-dateutil-2.9.0.post0.tar.gz", hash = "sha256:37dd54208da7e1cd875388217d5e00ebd4179249f90fb72437e91a35459a0ad3", size = 342432, upload-time = "2024-03-01T18:36:20.211Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ec/57/56b9bcc3c9c6a792fcbaf139543cee77261f3651ca9da0c93f5c1221264b/python_dateutil-2.9.0.post0-py2.py3-none-any.whl", hash = "sha256:a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427", size = 229892, upload-time = "2024-03-01T18:36:18.57Z" },
+name = "python-consul"
+version = "1.1.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "requests" },
+    { name = "six" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/7f/06/c12ff73cb1059c453603ba5378521e079c3f0ab0f0660c410627daca64b7/python-consul-1.1.0.tar.gz", hash = "sha256:168f1fa53948047effe4f14d53fc1dab50192e2a2cf7855703f126f469ea11f4", size = 25686, upload-time = "2018-07-09T04:13:48.221Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3f/d0/59bc5f1c6c4d4b498c41d8ce7052ee9e9d68be19e16038a55252018a6c4d/python_consul-1.1.0-py2.py3-none-any.whl", hash = "sha256:eeaaeeae87807ad1bc0d476ca3a9c53823ed5d514832951acebeca671eb54b20", size = 24308, upload-time = "2018-07-09T04:13:47.058Z" },
 ]
 
 [[package]]
