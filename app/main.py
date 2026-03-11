@@ -5,6 +5,7 @@ from fastapi.exceptions import RequestValidationError
 from contextlib import asynccontextmanager
 from app.core import ConsulHelper
 from dotenv import load_dotenv
+from app.question.router import router as question_router
 import consul, os, uuid
 
 from app.core.schema import ApiResponse
@@ -51,6 +52,8 @@ app = FastAPI(
 
 
 # ── 헬스체크 ─────────────────────────────────────────────────────
+app.include_router(question_router, prefix="/api/ai")
+
 @app.get("/health")
 def health_check():
     return {"status": "ok", "message": "AI server is running"}
