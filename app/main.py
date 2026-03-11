@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from app.core import ConsulHelper
 from dotenv import load_dotenv
+from app.report.router import router as report_router
+
 from app.question.router import router as question_router
 import consul, os, uuid
 
@@ -48,7 +50,6 @@ app.include_router(question_router, prefix="/api/ai")
 
 @app.get("/health")
 def health_check():
-    return {
-        "status": "ok", 
-        "message": "AI server is running"
-    }
+    return {"status": "ok", "message": "AI server is running"}
+
+app.include_router(report_router)
