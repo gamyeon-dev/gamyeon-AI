@@ -4,6 +4,7 @@ from app.core import ConsulHelper
 from dotenv import load_dotenv
 from app.report.router import router as report_router
 
+from app.question.router import router as question_router
 import consul, os, uuid
 
 load_dotenv()
@@ -44,6 +45,8 @@ app = FastAPI(
     version="0.1.0",
     lifespan = lifespan
 )
+
+app.include_router(question_router, prefix="/api/ai")
 
 @app.get("/health")
 def health_check():

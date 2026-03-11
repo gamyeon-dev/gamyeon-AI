@@ -120,14 +120,92 @@ AI가 면접관 역할을 수행합니다.
     ./gradlew bootRun
 
   Python AI 서버
+  PS C:\Users\user\Documents\GitHub\gamyeon-AI> uv run uvicorn app.main:app --reload
 
-    git clone https://github.com/your-org/gamyeon-ai.git
-    cd gamyeon-ai
-    cp .env.example .env
-    # .env에 API 키 입력
-    uv sync
-    uv run fastapi dev app/main.py
+### test
+## 테스트 방법
 
+***
+
+**① 서버 실행**
+```bash
+uv run uvicorn app.main:app --reload
+```
+
+***
+
+**② `http://localhost:8000/docs` 접속**
+
+***
+
+**③ `/api/ai/question/generate` 클릭 → `Try it out` 클릭**
+
+***
+
+**④ Request Body 입력**
+
+이력서만 있는 경우:
+```json
+{
+  "resume_url": "sample/resume.pdf",
+  "portfolio_url": null,
+  "self_introduction_url": null,
+  "job_role": "백엔드 개발자"
+}
+```
+
+이력서 + 포트폴리오 있는 경우:
+```json
+{
+  "resume_url": "sample/resume.pdf",
+  "portfolio_url": "sample/portfolio.pdf",
+  "self_introduction_url": null,
+  "job_role": "백엔드 개발자"
+}
+```
+
+이력서 + 포트폴리오 + 자기소개서 모두 있는 경우:
+```json
+{
+  "resume_url": "sample/resume.pdf",
+  "portfolio_url": "sample/portfolio.pdf",
+  "self_introduction_url": "sample/self_introduction.pdf",
+  "job_role": "백엔드 개발자"
+}
+```
+
+***
+
+**⑤ `Execute` 클릭**
+
+***
+
+## 예상 정상 응답
+
+```json
+{
+  "questions": [
+    "백엔드 개발자로서 RESTful API 설계 시 어떤 원칙을 중요하게 생각하시나요?",
+    "PostgreSQL과 MySQL을 모두 사용해보셨는데, 두 DB의 차이점과 각각 어떤 상황에서 선택하셨나요?",
+    "FastAPI와 Express.js를 함께 사용한 경험이 있으신데, 두 프레임워크의 장단점을 비교해주세요.",
+    "클린 아키텍처를 지향하신다고 하셨는데, 실제 프로젝트에서 어떻게 적용하셨나요?"
+  ]
+}
+```
+
+***
+
+**⑥ 파일 경로 주의사항**
+
+`sample/resume.pdf` 경로는 **서버 실행 위치 기준**입니다. 프로젝트 루트에서 서버를 실행했다면 아래 구조여야 합니다.
+
+```
+gamyeon-AI/
+└── sample/
+    ├── resume.pdf        ← 실제 파일 존재 확인
+    ├── portfolio.pdf
+    └── self_introduction.pdf
+```
   환경변수 (.env)
 
     OPENAI_API_KEY=your-openai-api-key
