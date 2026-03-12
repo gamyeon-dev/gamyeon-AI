@@ -22,7 +22,7 @@ class QuestionSummary(BaseModel):
     feedback: QuestionFeedbackDetail
 
 class ReportResponse(BaseModel):
-    interview_id: str
+    interview_id: int
     job_category: Optional[str] = None
     answered_count: int
     avg_answer_duration_ms: int

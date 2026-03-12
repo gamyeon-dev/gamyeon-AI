@@ -9,7 +9,7 @@ class FeedbackStatus(str, Enum):
 
 
 class FeedbackItem(BaseModel):
-    intv_question_id: str
+    intv_question_id: int 
     question: str
     status: FeedbackStatus
     logic_score: int
@@ -31,7 +31,7 @@ class InterviewMeta(BaseModel):
 
 
 class ReportRequest(BaseModel):
-    interview_id: str
+    interview_id: int
     meta: InterviewMeta
     feedbacks: list[FeedbackItem]
 
