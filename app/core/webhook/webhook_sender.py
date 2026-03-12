@@ -1,20 +1,19 @@
-# core/webhook/webhook_sender.py
 """
 공통 Webhook 전송 컴포넌트.
 
 tenacity 기반 재시도 + 구조화 로그 DLQ.
 
-사용처: webhook으로 spring serverdㅔ 전달하는 부분들
+사용처: webhook으로 spring server에 전달하는 부분들
 
-MVP-1: 3회 실패 시 구조화 JSON 로그 파일 출력
-MVP-2: Grafana Loki 수집 (로그 출력 방식만 변경)
+MVP1: 3회 실패 시 구조화 JSON 로그 파일 출력
+MVP2: Grafana Loki 수집 (로그 출력 방식만 변경)
 """
 
 from __future__ import annotations
 
 import json
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timezone 
 from typing import Any
 
 import httpx
@@ -38,14 +37,14 @@ class WebhookSender:
     공통 Webhook 전송 컴포넌트.
 
     재시도 정책:
-      tenacity 지수 백오프 (기본 2s → 4s → 8s).
-      재시도 대상: 네트워크 오류, 5xx 응답.
-      재시도 제외: 4xx 응답 (클라이언트 오류 — 재시도 무의미).
+    - tenacity 지수 백오프 (기본 2s → 4s → 8s).
+    - 재시도 대상: 네트워크 오류, 5xx 응답.
+    - 재시도 제외: 4xx 응답 (클라이언트 오류 — 재시도 무의미).
 
     DLQ(Dead Letter Queue):
-      MVP-1: dlq_logger → 파일 핸들러 (JSON 구조화 로그).
-      MVP-2: dlq_logger 핸들러를 Loki로 교체.
-             WebhookSender 코드 변경 없음.
+    - MVP1: dlq_logger → 파일 핸들러 (JSON 구조화 로그).
+    - MVP2: dlq_logger 핸들러를 Loki로 교체.
+        WebhookSender 코드 변경 없음.
     """
 
     def __init__(self, policy: RetryPolicy | None = None) -> None:
@@ -53,58 +52,66 @@ class WebhookSender:
 
     async def send(
         self,
-        url:     str,
-        payload: dict[str, Any],
-        target:  str,           # 로깅 식별자 (spring_webhook / feedback_event)
-        job_id:  str,
+        url:          str,
+        payload:      dict[str, Any],
+        target:       str,
+        interview_id: str,
+        question_id:  str
     ) -> None:
         """
         Webhook 전송 진입점
 
         Args:
-            url:     전송 대상 엔드포인트
-            payload: 전송 페이로드
-            target:  로깅 식별자
-            job_id:  추적용 작업 ID
+            url:          전송 대상 엔드포인트
+            payload:      전송 페이로드
+            target:       로깅 식별자 (spring_webhook / internal_event)
+            interview_id: 복합키 식별자
+            question_id:  복합키 식별자
 
         Raises:
             없음. 최종 실패 시 DLQ 로그 기록 후 반환
         """
         try:
-            await self._send_with_retry(url, payload, job_id, target)
+            await self._send_with_retry(
+                url, payload, interview_id, question_id, target,
+            )
 
         except RetryError as e:
             self._write_dlq_log(
-                job_id=job_id,
-                target=target,
-                url=url,
-                payload=payload,
-                retry_count=self._policy.max_attempts,
-                last_error=str(e.last_attempt.exception()),
+                interview_id=interview_id,
+                question_id= question_id,
+                target=      target,
+                url=         url,
+                payload=     payload,
+                retry_count= self._policy.max_attempts,
+                last_error=  str(e.last_attempt.exception()),
             )
 
         except Exception as e:
             # 재시도 대상 외 예외 (4xx 등)
             logger.error(
-                "Webhook 전송 불가 job_id=%s target=%s error=%s",
-                job_id, target, e,
+                "Webhook 전송 불가 interview_id=%s question_id=%s"
+                " target=%s error=%s",
+                interview_id, question_id, target, e,
             )
             self._write_dlq_log(
-                job_id=job_id,
-                target=target,
-                url=url,
-                payload=payload,
-                retry_count=0,
-                last_error=str(e),
+                interview_id=interview_id,
+                question_id= question_id,
+                target=      target,
+                url=         url,
+                payload=     payload,
+                retry_count= 0,
+                last_error=  str(e),
             )
 
     # Private
     async def _send_with_retry(
         self,
-        url:     str,
-        payload: dict[str, Any],
-        job_id:  str,
-        target:  str,
+        url:          str,
+        payload:      dict[str, Any],
+        interview_id: str,
+        question_id:  str,
+        target:       str
     ) -> None:
         """
         tenacity 재시도 래퍼.
@@ -143,20 +150,21 @@ class WebhookSender:
                     )
 
             logger.info(
-                "Webhook 전송 성공 job_id=%s target=%s",
-                job_id, target,
+                "Webhook 전송 성공 interview_id=%s question_id=%s target=%s",
+                interview_id, question_id, target,
             )
 
         await _attempt()
 
     def _write_dlq_log(
         self,
-        job_id:      str,
-        target:      str,
-        url:         str,
-        payload:     dict[str, Any],
-        retry_count: int,
-        last_error:  str,
+        interview_id: str,
+        question_id:  str,
+        target:       str,
+        url:          str,
+        payload:      dict[str, Any],
+        retry_count:  int,
+        last_error:   str
     ) -> None:
         """
         DLQ 구조화 로그 기록.
@@ -166,19 +174,20 @@ class WebhookSender:
 
         grep 복구 예시:
           grep "webhook_dead_letter" /var/log/dlq/dlq.log
-          grep "job_id" /var/log/dlq/dlq.log | jq .
+          grep '"interview_id": "123"' /var/log/dlq/dlq.log | jq .
         """
         dlq_logger.critical(
             json.dumps(
                 {
-                    "event":       "webhook_dead_letter",
-                    "job_id":      job_id,
-                    "target":      target,
-                    "url":         url,
-                    "payload":     payload,
-                    "retry_count": retry_count,
-                    "last_error":  last_error,
-                    "failed_at":   datetime.now(timezone.utc).isoformat(),
+                    "event":        "webhook_dead_letter",
+                    "interview_id": interview_id,
+                    "question_id":  question_id,
+                    "target":       target,
+                    "url":          url,
+                    "payload":      payload,
+                    "retry_count":  retry_count,
+                    "last_error":   last_error,
+                    "failed_at":    datetime.now(timezone.utc).isoformat(),
                 },
                 ensure_ascii=False,
             )
