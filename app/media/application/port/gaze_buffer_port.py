@@ -36,7 +36,7 @@ class GazeBufferPort(ABC) :
         ...
 
     @abstractmethod
-    async def pop_all(self, question_id: str) -> list[GazeSegment] :
+    async def pop_all(self, question_id: int) -> list[GazeSegment] :
         """
         questionId 기준 전체 세그먼트 반환 + 버퍼 제거.
 
@@ -54,7 +54,7 @@ class GazeBufferPort(ABC) :
         ...
 
     @abstractmethod
-    async def peek(self, question_id: str) -> list[GazeSegment] :
+    async def peek(self, question_id: int) -> list[GazeSegment] :
         """
         버퍼 상태 확인 (제거 없음).
 
@@ -71,7 +71,7 @@ class GazeBufferPort(ABC) :
         ...
 
     @abstractmethod
-    async def clear(self, question_id: str) -> None :
+    async def clear(self, question_id: int) -> None :
         """
         버퍼 명시적 초기화.
 

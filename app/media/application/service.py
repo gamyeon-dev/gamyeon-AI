@@ -35,10 +35,9 @@ class ProcessMediaCommand:
     router.py에서 schema → command 변환 후 service 호출.
     service.py는 schema에 직접 의존하지 않음 (헥사고날 원칙).
     """
-    job_id:             str
-    interview_id:       str
-    question_id:        str
-    audio_path:         str          # /tmp/{jobId}/audio.wav
+    interview_id:       int
+    question_id:        int
+    audio_path:         str
     answer_duration_ms: int
     tech_stack:         tuple[str, ...]
     interview_type:     str = "default"  # Consul KV 분기 (MVP-2)
@@ -97,8 +96,8 @@ class MediaService:
             STTTranscriptionError: 실패 시 router.py에서 FAILED 페이로드 전송.
         """
         logger.info(
-            "파이프라인 시작 job_id=%s question_id=%s",
-            command.job_id, command.question_id,
+            "파이프라인 시작 interview_id=%s question_id=%s",
+            command.interview_id, command.question_id,
         )
 
         # S4: STT
@@ -134,7 +133,6 @@ class MediaService:
         )
 
         result = MediaProcessingResult(
-            job_id=command.job_id,
             interview_id=command.interview_id,
             question_id=command.question_id,
             transcript=transcript,
@@ -146,8 +144,8 @@ class MediaService:
         )
 
         logger.info(
-            "파이프라인 완료 job_id=%s degraded=%s",
-            command.job_id, degraded,
+            "파이프라인 완료 interview_id=%s question_id=%s degraded=%s",
+            command.interview_id, command.question_id, degraded,
         )
 
         return result
@@ -179,14 +177,16 @@ class MediaService:
 
         if result.is_low_confidence:
             logger.warning(
-                "STT 신뢰도 낮음 job_id=%s language_probability=%.3f",
-                command.job_id,
-                result.language_probability,
+                "STT 신뢰도 낮음 interview_id=%s question_id=%s"
+                " language_probability=%.3f",
+                command.interview_id, command.question_id,
+                result.language_probability
             )
 
         logger.info(
-            "STT 완료 job_id=%s model=%s words=%d",
-            command.job_id,
+            "STT 완료 interview_id=%s question_id=%s"
+            " model=%s words=%d",
+            command.interview_id, command.question_id,
             result.stt_model_used.value,
             len(result.word_timestamps),
         )
@@ -209,13 +209,14 @@ class MediaService:
 
         if result.degraded:
             logger.warning(
-                "LLM 교정 Degraded job_id=%s",
-                command.job_id,
+                "S5 LLM 교정 Degraded interview_id=%s question_id=%s",
+                command.interview_id, command.question_id,
             )
         else:
             logger.info(
-                "LLM 교정 완료 job_id=%s phonetic=%d term=%d",
-                command.job_id,
+                "S5 LLM 교정 완료 interview_id=%s question_id=%s"
+                " phonetic=%d term=%d",
+                command.interview_id, command.question_id,
                 result.phonetic_correction_count,
                 result.term_correction_count,
             )

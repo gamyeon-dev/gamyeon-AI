@@ -1,7 +1,6 @@
 # app/media/domain/pipeline/aggregate.py
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import Optional
 
 from .. transcript.transcript_state import TranscriptState
 from ..gaze.gaze_result import GazeResult
@@ -18,9 +17,8 @@ class MediaProcessingResult :
     - S5 LLM 교정 실패 OR Gaze 버퍼 비어있음 → True
     - status=DONE, 일부 데이터 누락 표시
     """
-    job_id:       str
-    interview_id: str
-    question_id:  str
+    interview_id: int
+    question_id:  int
     transcript:   TranscriptState
     keywords:     KeywordResult
     gaze:         GazeResult
@@ -35,7 +33,6 @@ class MediaProcessingResult :
         Spring Boot가 수신 후 DB 저장 + 프론트 전송 담당
         """
         return {
-            "jobId":       self.job_id,
             "interviewId": self.interview_id,
             "questionId":  self.question_id,
             "status":      "DONE",
@@ -153,7 +150,6 @@ class MediaProcessingResult :
     def to_failed_payload(self, error_code: str, message: str) -> dict :
         """FAILED 시 Spring Boot 전송 페이로드"""
         return {
-            "jobId":       self.job_id,
             "interviewId": self.interview_id,
             "questionId":  self.question_id,
             "status":      "FAILED",
