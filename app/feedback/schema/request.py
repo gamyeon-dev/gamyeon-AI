@@ -9,7 +9,7 @@ class KeywordCandidate(BaseModel):
 
 
 class FeedbackRequest(BaseModel):
-    intv_question_id:     str
+    intv_question_id:     int
     job_role:             str
     question_text:        str
     corrected_transcript: str

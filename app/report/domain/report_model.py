@@ -18,8 +18,8 @@ class QuestionFeedbackDetail:
 
 @dataclass
 class QuestionSummary:
-    intv_question_id: str 
-    
+    intv_question_id: int
+    index: int    
     question: str
     answer_summary: str
     keywords: list[str]
@@ -27,7 +27,7 @@ class QuestionSummary:
 
 @dataclass
 class ReportResult:
-    interview_id: str
+    interview_id: int
     job_category: Optional[str]
     answered_count: int
     avg_answer_duration_ms: int
