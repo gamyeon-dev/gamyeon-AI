@@ -7,7 +7,7 @@ class ReportGeneratorPort(ABC):
         self,
         feedbacks: list[FeedbackItem],
         meta: MetaInfo,
-        interview_id: str
+        interview_id: int
     ) -> ReportResult:
         ...
         

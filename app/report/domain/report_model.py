@@ -19,7 +19,7 @@ class QuestionFeedbackDetail:
 @dataclass
 class QuestionSummary:
     intv_question_id: int
-    
+    index: int    
     question: str
     answer_summary: str
     keywords: list[str]

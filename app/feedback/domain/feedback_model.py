@@ -11,7 +11,7 @@ class FeedbackStatus(Enum):
 
 @dataclass
 class QuestionFeedback:
-    intv_question_id:          str
+    intv_question_id:          int
     status:                    FeedbackStatus
 
     # LLM 산출
@@ -31,7 +31,7 @@ class QuestionFeedback:
 
 
     @staticmethod
-    def skipped(intv_question_id: str) -> "QuestionFeedback":
+    def skipped(intv_question_id: int) -> "QuestionFeedback":
         return QuestionFeedback(
             intv_question_id         = intv_question_id,
             status                   = FeedbackStatus.SKIPPED,
@@ -46,7 +46,7 @@ class QuestionFeedback:
 
     @staticmethod
     def failed(
-        intv_question_id: str,
+        intv_question_id: int,
         gaze_score:        int = 0,
         time_score:        int = 0,
         answer_duration_ms:int = 0,

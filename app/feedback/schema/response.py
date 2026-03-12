@@ -3,7 +3,7 @@ from typing import Optional
 
 
 class FeedbackResponse(BaseModel):
-    intv_question_id:          str
+    intv_question_id:          int
     status:                    str
     logic_score:               Optional[int] = None
     answer_composition_score:  Optional[int] = None
