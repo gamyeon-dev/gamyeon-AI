@@ -8,6 +8,7 @@ from tenacity import retry, stop_after_attempt, wait_fixed, retry_if_exception_t
 from app.feedback.application.port.feedback_port import FeedbackPort
 from app.feedback.domain.feedback_model import QuestionFeedback, FeedbackStatus
 from app.feedback.schema.request import FeedbackRequest
+from app.feedback.infrastructure.prompt_provider import FeedbackPromptProvider
 
 
 # ── Structured Output 스키마 ─────────────────────────────────────
@@ -21,44 +22,6 @@ class FeedbackOutput(BaseModel):
     feedback_badges:           list[str] = Field(description="답변 특징 키워드 뱃지 (1~2개)")
 
 
-# ── 프롬프트 ────────────────────────────────────────────────────
-SYSTEM_PROMPT = """당신은 IT 직군 면접 답변 평가 전문가입니다.
-주어진 질문과 답변을 분석하여 아래 기준에 따라 항목별로 평가하세요.
-
-[평가 기준]
-
-1. logic_score (0~100)
-   - 주장과 이유가 명확하게 연결되어 있는가
-   - 무엇을 어떻게 처리했는지 구체적으로 서술했는가
-   - 수치(숫자, 퍼센트, 기간 등)가 포함되면 가점
-
-2. answer_composition_score (0~100)
-   - PREP 구조(Point → Reason → Example → Point) 포함 여부
-   - 구조가 완전할수록 높은 점수
-
-3. characteristic
-   - 답변의 전반적 특징을 한~두 문장으로 요약
-   - 공백 포함 반드시 80자 이내
-
-4. answer_summary
-   - 답변 핵심 내용을 1~2문장으로 요약
-
-5. strength
-   - 가장 잘한 점을 구체적 근거와 함께 한 문장으로 서술
-
-6. improvement
-   - 가장 중요한 개선점을 구체적 방향과 함께 한 문장으로 서술
-
-7. feedback_badges
-   - 답변을 대표하는 짧은 키워드 뱃지 1~2개
-   - 예시: "수치 근거 활용", "PREP 구조 미흡", "경험 기반 답변"
-
-{format_instructions}"""
-
-HUMAN_PROMPT = """[직군]: {job_role}
-[질문]: {question_text}
-[답변]: {corrected_transcript}"""
-
 
 # ── Adapter ─────────────────────────────────────────────────────
 class LangchainFeedbackAdapter(FeedbackPort):
@@ -66,12 +29,16 @@ class LangchainFeedbackAdapter(FeedbackPort):
     # 사전 차단 기준값
     MIN_TRANSCRIPT_LENGTH = 10
     MIN_RELIABILITY_SCORE = 50
-
-    def __init__(self, llm: ChatOpenAI) -> None:
+ 
+    def __init__(
+        self,
+        llm:             ChatOpenAI,
+        prompt_provider: FeedbackPromptProvider,
+    ) -> None:
         self._parser = PydanticOutputParser(pydantic_object=FeedbackOutput)
         self._prompt = ChatPromptTemplate.from_messages([
-            ("system", SYSTEM_PROMPT),
-            ("human",  HUMAN_PROMPT),
+            ("system", prompt_provider.system_prompt),
+            ("human",  prompt_provider.human_prompt),
         ]).partial(format_instructions=self._parser.get_format_instructions())
         self._chain = self._prompt | llm | self._parser
 
@@ -109,7 +76,6 @@ class LangchainFeedbackAdapter(FeedbackPort):
     )
     async def _invoke_with_retry(self, request: FeedbackRequest) -> FeedbackOutput:
         return await self._chain.ainvoke({
-            "job_role":             request.job_role,
             "question_text":        request.question_text,
             "corrected_transcript": request.corrected_transcript,
         })
