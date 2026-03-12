@@ -4,9 +4,9 @@
 
 ```
 {
-  "resume_url": "s3://gamyeon-input/resume/1234.pdf",
+  "resume_url": "sample/resume.pdf",
   "portfolio_url": null,
-  "self_introduction_url": "s3://gamyeon-input/self_intro/1234.pdf",
+  "self_introduction_url": null,
   "job_role": "백엔드 개발자"
 }
 ```
