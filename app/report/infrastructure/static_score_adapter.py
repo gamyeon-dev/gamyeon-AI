@@ -13,17 +13,10 @@ class StaticScoreAdapter:
 
     def calc_gaze(self, feedbacks: list[FeedbackItem]) -> int:
         return round(sum(f.gaze_score for f in feedbacks) / len(feedbacks))
-
+    
+    # calc_time_management는 time_score 평균
     def calc_time_management(self, feedbacks: list[FeedbackItem]) -> int:
-        avg_seconds = sum(f.answer_duration_ms for f in feedbacks) / len(feedbacks) / 1000
-        if avg_seconds < 30:
-            return 40
-        elif avg_seconds <= 50:
-            return 85
-        elif avg_seconds <= 55:
-            return 100
-        else:
-            return 60
+        return round(sum(f.answer_duration_ms for f in feedbacks) / len(feedbacks))
 
     def calc_keyword(self, feedbacks: list[FeedbackItem]) -> int:
         avg_count = sum(f.keyword_count for f in feedbacks) / len(feedbacks)
@@ -83,7 +76,7 @@ class StaticScoreAdapter:
                 "intv_question_id": f.intv_question_id,
                 "question": f.question,
                 "answer_summary": f.answer_summary,
-                "keywords": f.feedback_badges,
+                "feedback_badges": f.feedback_badges,
                 "feedback": {
                     "characteristic": f.characteristic,
                     "strength": f.strength,
@@ -94,6 +87,5 @@ class StaticScoreAdapter:
         ]
 
     # ── 평균 답변 시간 ─────────────────────────────────────
-
     def calc_avg_duration_ms(self, feedbacks: list[FeedbackItem]) -> int:
         return round(sum(f.answer_duration_ms for f in feedbacks) / len(feedbacks))
