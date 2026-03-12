@@ -1,6 +1,21 @@
 
+# webhook 
+PS C:\Users\user\Documents\GitHub\gamyeon-AI> uv run python callback_receiver.py
 
 # question - test 
+```
+{
+  "intvId": 123,
+  "files": [
+    {
+      "fileType": "RESUME",
+      "fileKey": "sample/resume.pdf"
+    }
+  ],
+  "callbackUrl": "http://127.0.0.1:9000/internal/v1/questions/callback"
+}
+
+```
 
 ```
 {
