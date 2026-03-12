@@ -3,19 +3,31 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from app.question.application.port.question_gen_port import QuestionGenPort
 from app.question.domain.interview_input import InterviewInput
-from app.question.infrastructure.prompts.question_gen_prompt import SYSTEM_PROMPT, build_question_prompt
+from app.question.infrastructure.question_gen_prompt_provider import QuestionGenPromptProvider
+
 
 class LLMQuestionGenAdapter(QuestionGenPort):
 
-    def __init__(self):
-        llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.8)
+    def __init__(self, llm: ChatOpenAI, prompt_provider: QuestionGenPromptProvider) -> None:
         prompt = ChatPromptTemplate.from_messages([
-            ("system", SYSTEM_PROMPT),
-            ("human", "{input}"),
+            ("system", prompt_provider.system_prompt),
+            ("human", prompt_provider.human_prompt),
         ])
-        self.chain = prompt | llm | StrOutputParser()
+        self._chain = prompt | llm | StrOutputParser()
 
     async def generate(self, interview_input: InterviewInput) -> list[str]:
-        result = await self.chain.ainvoke({"input": build_question_prompt(interview_input)})
+        result = await self._chain.ainvoke(self._build_variables(interview_input))
         questions = [q.strip() for q in result.split("\n") if q.strip()]
-        return questions[:4]  # 혹시 4개 초과 시 안전장치
+        return questions[:4]
+
+    @staticmethod
+    def _build_variables(i: InterviewInput) -> dict:
+        return {
+            "job_role":                   i.job_role,
+            "core_competencies_section":  f"핵심 역량: {', '.join(i.core_competencies)}\n\n" if i.core_competencies else "",
+            "career_summary_section":     f"경력 요약: {i.career_summary}\n\n" if i.career_summary else "",
+            "work_experiences_section":   f"주요 경력:\n" + "\n".join(i.work_experiences) + "\n\n" if i.work_experiences else "",
+            "projects_section":           f"프로젝트:\n" + "\n".join(i.projects) + "\n\n" if i.projects else "",
+            "portfolio_section":          f"포트폴리오 요약: {i.portfolio_summary}\n\n" if i.portfolio_summary else "",
+            "self_intro_section":         f"자기소개서 요약: {i.self_introduction_summary}\n\n" if i.self_introduction_summary else "",
+        }
