@@ -8,12 +8,12 @@ class GazeBufferPort(ABC) :
     Gaze 세그먼트 큐 추상화 포트.
 
     흐름:
-      수신 시점 (답변 중):
+    수신 시점 (답변 중):
         POST /internal/media/gaze/segment 수신
         → push() 호출
         → questionId 기준 버퍼에 segmentSequence 정렬 삽입
 
-      처리 시점 (답변 종료):
+    처리 시점 (답변 종료):
         POST /internal/media/process 수신
         → pop_all() 호출
         → 정렬된 전체 세그먼트 반환 + 버퍼 제거
@@ -45,7 +45,7 @@ class GazeBufferPort(ABC) :
 
         Returns:
             list[GazeSegment]: segmentSequence 오름차순 정렬 보장.
-                               버퍼 비어있으면 빈 리스트 반환.
+                버퍼 비어있으면 빈 리스트 반환.
 
         Note:
             호출 후 해당 questionId 버퍼 완전 제거.
