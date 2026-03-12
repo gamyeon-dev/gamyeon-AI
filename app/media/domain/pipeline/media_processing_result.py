@@ -17,8 +17,8 @@ class MediaProcessingResult :
     - S5 LLM 교정 실패 OR Gaze 버퍼 비어있음 → True
     - status=DONE, 일부 데이터 누락 표시
     """
-    interview_id: str
-    question_id:  str
+    interview_id: int
+    question_id:  int
     transcript:   TranscriptState
     keywords:     KeywordResult
     gaze:         GazeResult

@@ -35,8 +35,8 @@ class ProcessMediaCommand:
     router.py에서 schema → command 변환 후 service 호출.
     service.py는 schema에 직접 의존하지 않음 (헥사고날 원칙).
     """
-    interview_id:       str
-    question_id:        str
+    interview_id:       int
+    question_id:        int
     audio_path:         str
     answer_duration_ms: int
     tech_stack:         tuple[str, ...]
