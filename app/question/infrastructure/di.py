@@ -11,14 +11,11 @@ from app.question.infrastructure.llm_structuring_adapter import LLMStructuringAd
 from app.question.infrastructure.llm_question_gen_adapter import LLMQuestionGenAdapter
 from app.question.infrastructure.structuring_prompt_provider import StructuringPromptProvider
 from app.question.infrastructure.question_gen_prompt_provider import QuestionGenPromptProvider
-
+from app.question.infrastructure.s3_download_adapter import S3DownloadAdapter
 
 def get_s3_download_port() -> S3DownloadPort:
-    return LocalFileAdapter()
-
-    # ↓ AWS 키 수령 후 교체
-    # from app.question.infrastructure.s3_download_adapter import S3DownloadAdapter
-    # return S3DownloadAdapter()
+    #return LocalFileAdapter()
+    return S3DownloadAdapter(timeout=60.0) # PDF가 클 수 있으므로 60초 넉넉히 설정
 
 
 def get_pdf_extract_port() -> PdfExtractPort:
