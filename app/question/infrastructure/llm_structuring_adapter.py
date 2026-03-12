@@ -13,7 +13,7 @@ class LLMStructuringAdapter(StructuringPort):
     async def structure(
         self,
         resume_text: str,
-        job_role: str,
+        job_role: str | None = None,
         portfolio_text: str | None = None,
         self_intro_text: str | None = None,
     ) -> InterviewInput:

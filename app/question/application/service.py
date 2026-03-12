@@ -22,7 +22,7 @@ class QuestionService:
     async def parse_and_generate(
         self,
         resume_url: str,
-        job_role: str,
+        job_role: str| None = None,
         portfolio_url: str | None = None,
         self_introduction_url: str | None = None,
     ) -> list[str]:
