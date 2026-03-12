@@ -7,8 +7,8 @@ class STTPort(ABC) :
     STT 아웃바운드 포트.
 
     책임:
-      WAV 파일 → STTResult 변환.
-      OOM fallback 정책은 어댑터 내부에서 처리.
+    - WAV 파일 → STTResult 변환.
+    - OOM fallback 정책은 어댑터 내부에서 처리.
         large-v3 실패 → medium 1회 재시도.
         medium도 실패 → STTTranscriptionError 발생.
 

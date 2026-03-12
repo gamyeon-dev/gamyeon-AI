@@ -4,20 +4,13 @@ import logging
 from dataclasses import dataclass
 
 from media.domain import (
-    # STT BC
-    STTResult,
-    # Correction BC
-    CorrectionResult,
-    # Transcript BC
-    TranscriptState,
-    # Gaze BC
-    GazeResult,
-    # Keyword BC
-    KeywordResult,
-    # Scoring BC
-    ScoringConfig, TimeScore, ReliabilityFactors, ReliabilityScore,
-    # Pipeline BC
-    MediaProcessingResult,
+    STTResult,          # STT
+    CorrectionResult,   # Correction
+    TranscriptState,    # Transcript
+    GazeResult,         # Gaze
+    KeywordResult,      # Keyword
+    ScoringConfig, TimeScore, ReliabilityFactors, ReliabilityScore, # Scoring
+    MediaProcessingResult, # Pipeline
 )
 from media.application.port.stt_port            import STTPort, TranscriptCorrectionPort
 from media.application.port.gaze_buffer_port    import GazeBufferPort
@@ -60,14 +53,14 @@ class MediaService:
     Media 파이프라인 오케스트레이터.
 
     포트 주입:
-      stt_port:         STTPort
-      correction_port:  TranscriptCorrectionPort
-      gaze_buffer:      GazeBufferPort
-      scoring_config:   ScoringConfigPort
+    - stt_port:         STTPort
+    - correction_port:  TranscriptCorrectionPort
+    - gaze_buffer:      GazeBufferPort
+    - scoring_config:   ScoringConfigPort
 
     도메인 서비스 주입:
-      keyword_extractor: KeywordExtractor (CPU 기반, 외부 API 없음)
-      gaze_aggregator:   GazeAggregator   (순수 계산, 외부 API 없음)
+    - keyword_extractor: KeywordExtractor (CPU 기반, 외부 API 없음)
+    - gaze_aggregator:   GazeAggregator   (순수 계산, 외부 API 없음)
     """
 
     def __init__(
@@ -95,14 +88,13 @@ class MediaService:
         command: ProcessMediaCommand,
     ) -> MediaProcessingResult:
         """
-        S4~S8 파이프라인 실행 후 MediaProcessingResult 반환.
+        파이프라인 실행 후 MediaProcessingResult 반환.
 
         STTTranscriptionError 발생 시에만 FAILED.
         나머지 단계 실패는 Degraded 처리 후 계속 진행.
 
         Raises:
-            STTTranscriptionError: S4 실패 시.
-                                   router.py에서 FAILED 페이로드 전송.
+            STTTranscriptionError: 실패 시 router.py에서 FAILED 페이로드 전송.
         """
         logger.info(
             "파이프라인 시작 job_id=%s question_id=%s",
@@ -176,9 +168,9 @@ class MediaService:
         command: ProcessMediaCommand,
     ) -> STTResult:
         """
-        S4: Whisper STT.
-        실패 시 STTTranscriptionError → 파이프라인 FAILED.
-        language_probability < 0.5 → 경고 로그 + 처리 계속.
+        Whisper STT
+        실패 시 STTTranscriptionError → 파이프라인 FAILED
+        language_probability < 0.5 → 경고 로그 + 처리 계속
         """
         result = await self._stt.transcribe(
             audio_path=command.audio_path,
@@ -193,7 +185,7 @@ class MediaService:
             )
 
         logger.info(
-            "S4 STT 완료 job_id=%s model=%s words=%d",
+            "STT 완료 job_id=%s model=%s words=%d",
             command.job_id,
             result.stt_model_used.value,
             len(result.word_timestamps),
@@ -207,8 +199,8 @@ class MediaService:
         command: ProcessMediaCommand,
     ) -> CorrectionResult:
         """
-        S5: LLM CoT 통합 교정.
-        실패 시 Degraded Mode 자동 강등 (예외 미전파).
+        S5: LLM CoT 통합 교정
+        실패 시 Degraded Mode 자동 강등 (예외 미전파)
         """
         result = await self._correction.correct(
             raw_transcript=stt_result.raw_transcript,
@@ -217,12 +209,12 @@ class MediaService:
 
         if result.degraded:
             logger.warning(
-                "S5 LLM 교정 Degraded job_id=%s",
+                "LLM 교정 Degraded job_id=%s",
                 command.job_id,
             )
         else:
             logger.info(
-                "S5 LLM 교정 완료 job_id=%s phonetic=%d term=%d",
+                "LLM 교정 완료 job_id=%s phonetic=%d term=%d",
                 command.job_id,
                 result.phonetic_correction_count,
                 result.term_correction_count,
@@ -236,8 +228,8 @@ class MediaService:
         correction_result: CorrectionResult,
     ) -> TranscriptState:
         """
-        S4 + S5 결과를 TranscriptState VO로 조립.
-        두 AR의 값을 읽기만 하고 새 불변 객체 생성.
+        S4 + S5 결과를 TranscriptState VO로 조립
+        두 AR의 값을 읽기만 하고 새 불변 객체 생성
         """
         return TranscriptState(
             raw_transcript=stt_result.raw_transcript,
@@ -255,20 +247,20 @@ class MediaService:
         transcript: TranscriptState,
     ) -> KeywordResult:
         """
-        S6: 키워드 추출 (CPU, 외부 API 없음).
-        실패 시 빈 tuple 반환, 파이프라인 계속 진행.
+        S6: 키워드 추출 (CPU, 외부 API 없음)
+        실패 시 빈 tuple 반환, 파이프라인 계속 진행
         """
         try:
             result = await self._keywords.extract(
                 text=transcript.corrected_transcript,
             )
             logger.info(
-                "S6 키워드 추출 완료 candidates=%d",
+                "키워드 추출 완료 candidates=%d",
                 len(result.candidates),
             )
             return result
         except Exception as e:
-            logger.warning("S6 키워드 추출 실패 — 빈 결과 반환: %s", e)
+            logger.warning("키워드 추출 실패 — 빈 결과 반환: %s", e)
             return KeywordResult(candidates=())
 
     async def _run_gaze_aggregation(
@@ -277,14 +269,14 @@ class MediaService:
     ) -> GazeResult:
         """
         S7: Gaze 집계.
-        버퍼에서 pop_all() 후 GazeAggregator에 위임.
+        버퍼에서 pop_all() 후 GazeAggregator에 위임
         세그먼트 0개 → is_empty=True → Degraded 판단.
         """
         segments = await self._gaze_buffer.pop_all(command.question_id)
 
         if not segments:
             logger.warning(
-                "S7 Gaze 세그먼트 없음 question_id=%s",
+                "Gaze 세그먼트 없음 question_id=%s",
                 command.question_id,
             )
 
@@ -294,7 +286,7 @@ class MediaService:
         )
 
         logger.info(
-            "S7 Gaze 집계 완료 gaze_score=%s coverage=%.3f",
+            "Gaze 집계 완료 gaze_score=%s coverage=%.3f",
             result.gaze_score,
             result.summary.segment_coverage,
         )
@@ -329,7 +321,7 @@ class MediaService:
         )
 
         logger.info(
-            "S8 점수 산출 완료 time=%d reliability=%d grade=%s",
+            "점수 산출 완료 time=%d reliability=%d grade=%s",
             time_score.time_score,
             reliability_score.score,
             reliability_score.grade.value,
