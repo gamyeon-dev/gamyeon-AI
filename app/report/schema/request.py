@@ -4,11 +4,12 @@ from typing import Optional
 
 
 class FeedbackStatus(str, Enum):
-    COMPLETED = "COMPLETED"
+    SUCCEED = "SUCCEED"
     FAILED = "FAILED"
 
 
 class FeedbackItem(BaseModel):
+     # ! reliability
     intv_question_id: int 
     question: str
     status: FeedbackStatus
