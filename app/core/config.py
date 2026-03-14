@@ -7,5 +7,8 @@ class Settings(BaseSettings):
     s3_bucket_name: str
 
     model_config = SettingsConfigDict(env_file=".env")
+    MEDIA_SPRING_WEBHOOK_URL: str = (
+        "http://spring-server:8080/internal/v1/answers/stt/callback"
+    )
 
 settings = Settings()

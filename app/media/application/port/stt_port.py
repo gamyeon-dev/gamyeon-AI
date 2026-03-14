@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 
 from media.domain import STTResult
@@ -18,14 +20,14 @@ class STTPort(ABC) :
     @abstractmethod
     async def transcribe(
         self,
-        audio_path: str,
+        media_path: str,
         tech_stack: list[str],
     ) -> STTResult :
         """
-        WAV 파일을 텍스트로 변환.
+        영상 파일에서 오디오 추출 후 텍스트 변환
 
         Args:
-            audio_path: 로컬 WAV 파일 경로 (/tmp/{jobId}/audio.wav)
+            media_path: S3 영상 파일 경로(webm / mp4)
             tech_stack: initial_prompt 구성용 기술 스택
 
         Returns:
