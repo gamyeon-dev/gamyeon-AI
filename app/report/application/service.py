@@ -47,6 +47,7 @@ class ReportService:
             QuestionSummary(
                 intv_question_id=s["intv_question_id"],
                 question=s["question"],
+                index=s["index"],
                 answer_summary=s["answer_summary"],
                 keywords=s["keywords"],
                 feedback=QuestionFeedbackDetail(
