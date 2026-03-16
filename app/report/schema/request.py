@@ -1,7 +1,7 @@
 from enum import Enum
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, model_validator,ConfigDict
 from typing import Optional
-
+from pydantic.alias_generators import to_camel
 
 class FeedbackStatus(str, Enum):
     model_config = ConfigDict(

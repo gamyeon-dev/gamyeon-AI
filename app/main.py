@@ -19,7 +19,7 @@ app = FastAPI(
 )
 
 # ── 라우터 등록 ──────────────────────────────────────────────────
-app.include_router(question_router, prefix="/api/ai")
+app.include_router(question_router)
 app.include_router(feedback_router)
 app.include_router(report_router)
 

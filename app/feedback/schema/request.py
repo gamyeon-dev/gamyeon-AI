@@ -1,4 +1,5 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
+from pydantic.alias_generators import to_camel
 from typing import Optional
 
 
@@ -15,7 +16,7 @@ class KeywordCandidate(BaseModel):
 
 class FeedbackRequest(BaseModel):
     model_config = ConfigDict(
-        alias_generator=to_camel,
+        alias_generator= to_camel,
         populate_by_name=True, # Spring이 보낸 camelCase를 받아들임
     )
     
