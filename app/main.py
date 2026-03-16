@@ -54,7 +54,7 @@ app = FastAPI(
 
 
 # ── 헬스체크 ─────────────────────────────────────────────────────
-app.include_router(question_router, prefix="/api/ai")
+
 
 @app.get("/health")
 def health_check():
@@ -91,3 +91,5 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 # ── 라우터 등록 ──────────────────────────────────────────────────
 app.include_router(feedback_router)
+app.include_router(question_router)
+app.include_router(report_router)
