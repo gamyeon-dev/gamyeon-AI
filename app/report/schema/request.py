@@ -4,12 +4,23 @@ from typing import Optional
 
 
 class FeedbackStatus(str, Enum):
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True, # Spring이 보낸 camelCase를 받아들임
+    )   
+    
     COMPLETED = "COMPLETED"
     FAILED = "FAILED"
 
 
 class FeedbackItem(BaseModel):
-    intv_question_id: int 
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True, # Spring이 보낸 camelCase를 받아들임
+    )
+        
+    intv_question_id: int
+    index: int 
     question: str
     status: FeedbackStatus
     logic_score: int
@@ -26,11 +37,19 @@ class FeedbackItem(BaseModel):
 
 
 class InterviewMeta(BaseModel):
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True, # Spring이 보낸 camelCase를 받아들임
+    )
     job_category: Optional[str] = None
     answered_count: int
 
 
 class ReportRequest(BaseModel):
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True, # Spring이 보낸 camelCase를 받아들임
+    )
     interview_id: int
     meta: InterviewMeta
     feedbacks: list[FeedbackItem]
