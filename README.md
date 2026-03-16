@@ -138,7 +138,7 @@ uv run uvicorn app.main:app --reload
 
 ***
 
-**③ `/internal/question/generate` 클릭 → `Try it out` 클릭**
+**③ `/internal/questions/generate` 클릭 → `Try it out` 클릭**
 
 ***
 
