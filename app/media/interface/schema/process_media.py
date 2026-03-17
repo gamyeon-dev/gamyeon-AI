@@ -19,9 +19,9 @@ class ProcessMediaRequest(BaseModel):
     - 빈 배열 허용 → 일반 IT 용어 기준 교정 진행
 
     interview_type:
-      Consul KV 분기 키
-      MVP1: "default" 고정
-      MVP2: "tech" | "personality" | "executive"
+    - Consul KV 분기 키
+    - MVP1: "default" 고정
+    - MVP2: "tech" | "personality" | "executive"
     """
     interview_id:   int       = Field(..., description = "면접 세션 ID")
     question_id:    int       = Field(..., description = "질문 ID")
