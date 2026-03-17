@@ -43,13 +43,13 @@ def emit(
     if not receivers:
         logger.debug(
             "이벤트 구독자 없음 signal=%s sender=%s",
-            signal.name, sender,
+            getattr(signal, "name", repr(signal)), sender,
         )
         return
 
     logger.debug(
         "이벤트 발행 signal=%s sender=%s receivers=%d",
-        signal.name, sender, len(receivers),
+        getattr(signal, "name", repr(signal)), sender, len(receivers),
     )
 
     for receiver in receivers:
@@ -63,7 +63,7 @@ def emit(
             except Exception as e:
                 logger.error(
                     "동기 핸들러 실패 signal=%s receiver=%s error=%s",
-                    signal.name, receiver.__name__, e,
+                    getattr(signal, "name", repr(signal)), receiver.__name__, e,
                 )
 
 
@@ -89,7 +89,8 @@ def subscribe(
     signal.connect(handler)
     logger.debug(
         "이벤트 구독 등록 signal=%s handler=%s",
-        signal.name, handler.__name__,
+        getattr(signal, "name", repr(signal)),
+        handler.__name__,
     )
 
 
