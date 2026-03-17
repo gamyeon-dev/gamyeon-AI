@@ -27,6 +27,9 @@ from media.infrastructure.keyword_extractor_impl         import KeywordExtractor
 from media.application.usecase                           import ProcessMediaUseCase
 from media.infrastructure.spring_webhook_adapter         import SpringWebhookAdapter
 from media.infrastructure.media_event_adapter            import MediaEventAdapter
+from media.application.usecase         import ProcessMediaUseCase
+from media.infrastructure.spring_webhook_adapter import SpringWebhookAdapter
+from media.infrastructure.media_event_adapter    import MediaEventAdapter
 
 # 싱글턴 어댑터 (애플리케이션 생명주기와 동일)
 @lru_cache(maxsize=1)
