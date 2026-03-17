@@ -39,7 +39,7 @@ class FeedbackService:
     def _to_request(event: FeedbackEventRequest) -> FeedbackRequest:
         return FeedbackRequest(
             intv_question_id     = event.question_id,
-            question_content        = event.question_content,       # ← 아래 확인
+            question_content     = event.question_content,       # ← 아래 확인
             corrected_transcript = event.transcript.corrected_transcript,
             degraded             = event.degraded,
             reliability_score    = event.reliability.score,
