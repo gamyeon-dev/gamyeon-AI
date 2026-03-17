@@ -28,11 +28,24 @@ class SpringWebhookAdapter(ResultWebhookPort):
         args:
             MediaProcessingResult: Media 프로세싱 결과
         """
+        payload = result.to_spring_webhook_payload().model_dump(by_alias=True)
+
+        logger.info(
+            "Webhook 전송 시작 (DONE) url=%s interview_id=%s question_id=%s"
+            " degraded=%s corrected_transcript=%s keyword_count=%d",
+            settings.SPRING_WEBHOOK_URL,
+            result.interview_id, result.question_id,
+            result.degraded,
+            result.transcript.corrected_transcript,
+            len(result.keywords.candidates),
+        )
+
         await self._sender.send(
             url=    settings.SPRING_WEBHOOK_URL,
-            payload=result.to_spring_webhook_payload().model_dump(by_alias=True),
+            payload=payload,
             target= "spring_webhook",
         )
+
         logger.info(
             "Webhook 전송 완료 (DONE) interview_id=%s question_id=%s",
             result.interview_id, result.question_id,
@@ -53,8 +66,15 @@ class SpringWebhookAdapter(ResultWebhookPort):
             question_id:  질문 ID
             error_code:   에러 코드
             message:      에러 상세 메세지
-        
         """
+        logger.warning(
+            "Webhook 전송 시작 (FAILED) url=%s interview_id=%s question_id=%s"
+            " error_code=%s message=%s",
+            settings.SPRING_WEBHOOK_URL,
+            interview_id, question_id,
+            error_code, message,
+        )
+
         await self._sender.send(
             url=    settings.SPRING_WEBHOOK_URL,
             payload=WebhookFailedPayload(
@@ -65,6 +85,7 @@ class SpringWebhookAdapter(ResultWebhookPort):
             ).model_dump(by_alias=True),
             target= "spring_webhook_failed",
         )
+
         logger.info(
             "Webhook 전송 완료 (FAILED) interview_id=%s question_id=%s",
             interview_id, question_id,

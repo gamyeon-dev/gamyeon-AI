@@ -18,12 +18,26 @@ class MediaEventAdapter(MediaEventPort):
     """
 
     def publish_completed(self, result: MediaProcessingResult) -> None:
+        payload = result.to_feedback_event_payload()
+
+        logger.info(
+            "media_completed 이벤트 발행 시작 interview_id=%s question_id=%s"
+            " question_content=%s degraded=%s gaze_score=%s time_score=%d reliability_score=%d",
+            result.interview_id, result.question_id,
+            result.question_content,
+            result.degraded,
+            result.gaze.gaze_score,
+            result.time.time_score,
+            result.reliability.score,
+        )
+
         bus.emit(
             signal= signals.media_completed,
-            payload=result.to_feedback_event_payload(),
+            payload=payload,
             sender= "media",
         )
+
         logger.info(
-            "media_completed 이벤트 발행 interview_id=%s question_id=%s",
+            "media_completed 이벤트 발행 완료 interview_id=%s question_id=%s",
             result.interview_id, result.question_id,
         )

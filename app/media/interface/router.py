@@ -42,12 +42,21 @@ async def process_media(
     usecase         : ProcessMediaUseCase = Depends(get_process_media_usecase)
 ) -> ApiResponse[AcceptedData]:
 
+    logger.info(
+        "파이프라인 요청 수신 interview_id=%s question_id=%s"
+        " s3_key=%s question_content=%s",
+        request.interview_id, request.question_id,
+        request.s3_key, request.question_content,
+    )
+
     command = _mapper.to_process_command(request)
     background_tasks.add_task(usecase.execute, command)
 
     logger.info(
-        "파이프라인 요청 수락 interview_id=%s question_id=%s",
+        "파이프라인 백그라운드 등록 완료 interview_id=%s question_id=%s"
+        " s3_key=%s tech_stack=%s",
         request.interview_id, request.question_id,
+        request.s3_key, request.tech_stack,
     )
 
     return ApiResponse[AcceptedData](
