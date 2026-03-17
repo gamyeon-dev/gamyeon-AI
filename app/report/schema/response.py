@@ -1,8 +1,7 @@
 from __future__ import annotations
-
 from datetime import datetime
 from enum import Enum
-from typing import TYPE_CHECKING, List, Optional
+from typing import List, Optional, TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
@@ -26,9 +25,9 @@ class QuestionFeedbackDetail(BaseModel):
 class QuestionSummary(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
     index: int
-    question_set_id: int  # → questionSetId
+    question_set_id: int      # → questionSetId
     question: str
-    answer_summary: str  # → answerSummary
+    answer_summary: str       # → answerSummary
     feedback_badges: List[str]  # → feedbackBadges
     feedback: QuestionFeedbackDetail
 
@@ -36,9 +35,9 @@ class QuestionSummary(BaseModel):
 class CompetencyScores(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
     logic: int
-    answer_composition: int  # → answerComposition
+    answer_composition: int   # → answerComposition
     gaze: int
-    time_management: int  # → timeManagement
+    time_management: int      # → timeManagement
     keyword: int
 
 
@@ -92,19 +91,15 @@ class ReportResponse(BaseModel):
 
 
 class ReportCallbackPayload(BaseModel):
-    model_config = ConfigDict(
-        alias_generator=to_camel, populate_by_name=True, from_attributes=True
-    )
-    intv_id: int  # → intvId
-    user_id: int  # → userId
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+    intv_id: int              # → intvId
+    user_id: int              # → userId
     status: CallbackStatus
     report: Optional[ReportResponse] = None
     error_message: Optional[str] = None  # → errorMessage
 
     @classmethod
-    def from_result(
-        cls, intv_id: int, user_id: int, result: ReportResult
-    ) -> ReportCallbackPayload:
+    def from_result(cls, intv_id: int, user_id: int, result: ReportResult) -> ReportCallbackPayload:
         return cls(
             intv_id=intv_id,
             user_id=user_id,
@@ -114,9 +109,7 @@ class ReportCallbackPayload(BaseModel):
         )
 
     @classmethod
-    def failed(
-        cls, intv_id: int, user_id: int, error_message: str
-    ) -> ReportCallbackPayload:
+    def failed(cls, intv_id: int, user_id: int, error_message: str) -> ReportCallbackPayload:
         return cls(
             intv_id=intv_id,
             user_id=user_id,

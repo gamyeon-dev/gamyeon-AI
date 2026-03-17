@@ -5,7 +5,6 @@ from app.report.schema.request import FeedbackItem
 from app.report.domain.report_model import (
     ReportResult, CompetencyScores, QuestionFeedbackDetail, QuestionSummary
 )
-from datetime import datetime, timezone
 
 class StaticScoreAdapter(ReportGeneratorPort):
     """
@@ -59,7 +58,7 @@ class StaticScoreAdapter(ReportGeneratorPort):
 
         # 6. ReportResult 조립
         return ReportResult(
-            intv_id=intv_id,
+            interview_id=intv_id,
             job_category=None,  # Spring에서 처리
             answered_count=len(feedbacks),
             avg_answer_duration_ms=self.calc_avg_duration_ms(feedbacks),
