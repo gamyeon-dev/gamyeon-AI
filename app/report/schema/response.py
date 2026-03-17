@@ -50,6 +50,7 @@ class ReportResponse(BaseModel):
     answered_count: int
     avg_answer_duration_ms: int
     created_at: datetime
+    # reliability
     report_accuracy: str
     competency_scores: CompetencyScores
     total_score: int

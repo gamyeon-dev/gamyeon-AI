@@ -4,9 +4,10 @@ from typing import Optional
 
 
 class FeedbackStatus(Enum):
-    COMPLETED = "COMPLETED"
-    SKIPPED   = "SKIPPED"
+    SUCCEED = "SUCCEED"
+    SKIPPED   = "SKIPPED" #생략됐을때
     FAILED    = "FAILED"
+    IN_PROGRESS = "IN_PROGRESS"
 
 
 @dataclass
@@ -28,13 +29,13 @@ class QuestionFeedback:
     time_score:                int                 = 0
     answer_duration_ms:        int                 = 0
     keyword_count:             int                 = 0
-
+ # ! reliability
 
     @staticmethod
     def skipped(intv_question_id: int) -> "QuestionFeedback":
         return QuestionFeedback(
             intv_question_id         = intv_question_id,
-            status                   = FeedbackStatus.SKIPPED,
+            status                   = FeedbackStatus.FAILED,
             logic_score              = 0,
             answer_composition_score = 0,
             characteristic           = "답변 내용이 없어 평가할 수 없습니다.",
