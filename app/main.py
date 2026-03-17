@@ -72,7 +72,14 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
             success = False,
             code    = "CMMN-V001",
             message = "입력값 유효성 검사에 실패했습니다.",
-            data    = None,
+            data    = [
+                {
+                    "field": " → ".join(str(loc) for loc in err["loc"]),
+                    "message": err["msg"],
+                    "type": err["type"],
+                }
+                for err in exc.errors()
+            ],
         ).model_dump(),
     )
 
