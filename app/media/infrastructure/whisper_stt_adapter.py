@@ -13,6 +13,7 @@ initial_prompt:
 from __future__ import annotations
 
 import logging
+import asyncio
 from pathlib import Path
 
 from faster_whisper import WhisperModel
@@ -71,12 +72,11 @@ class WhisperSTTAdapter(STTPort):
         for model_type in _MODEL_SEQUENCE:
             try:
                 model  = self._get_model(model_type)
-                result = self._run_transcription(
-                    model=model,
-                    audio_path=audio_path,
-                    prompt=prompt,
-                    model_type=model_type,
+                result = await asyncio.to_thread(
+                    self._run_transcription,
+                    model, audio_path, prompt, model_type
                 )
+                
                 logger.info(
                     "STT 완료 model=%s words=%d lang_prob=%.3f",
                     model_type.value,
