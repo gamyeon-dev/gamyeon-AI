@@ -13,7 +13,7 @@ import logging
 
 from fastapi import APIRouter, BackgroundTasks, Depends, status
 
-from core.schema import ApiResponse
+from app.core.schema import ApiResponse
 
 from media.application.service                       import MediaService
 from media.application.usecase.process_media_usecase import ProcessMediaUseCase
