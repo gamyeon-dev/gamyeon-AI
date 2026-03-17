@@ -2,7 +2,7 @@ services:
   agent-server:
     image: zzang6535/gamyeon-agent:latest
     restart: always
-    container_name: AGENT_SERVER
+    container_name: GAMYEON_AGENT_SERVER
     ports:
       - "8000:8000"
     environment:
