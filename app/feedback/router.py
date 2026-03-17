@@ -5,7 +5,7 @@ from app.feedback.infrastructure.di import get_feedback_service
 from app.feedback.schema.request import FeedbackRequest
 from app.feedback.schema.response import FeedbackResponse
 
-router = APIRouter(prefix="/internal/v1/feedback", tags=["feedback"])
+router = APIRouter(prefix="/internal/v1/feedbacks", tags=["feedback"])
 
 
 @router.post("/generate", response_model=ApiResponse[FeedbackResponse])

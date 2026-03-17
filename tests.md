@@ -8,12 +8,6 @@
   "portfolio_url": null,
   "self_introduction_url": null,
   "job_role": "백엔드 개발자"
-
-
-
-
-
-
 }
 
 {
