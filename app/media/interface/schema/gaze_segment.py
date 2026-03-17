@@ -22,9 +22,9 @@ class GazeSegmentRequest(BaseModel):
         segment_sequence: int = Field(..., alias="segmentSequence", ge=0)
 
     class MetricsSummary(BaseModel):
-        average_concentration: float = Field(..., alias="averageConcentration")
-        blink_count:           int   = Field(..., alias="blinkCount")
-        is_away_detected:      bool  = Field(..., alias="isAwayDetected")
+        average_concentration: float
+        blink_count:           int
+        is_away_detected:      bool
 
     class Coordinate(BaseModel):
         x: float
