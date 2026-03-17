@@ -35,11 +35,12 @@ class ProcessMediaCommand:
 
     router.py에서 schema → command 변환 후 service 호출
     """
-    interview_id:   int
-    question_id:    int
-    s3_key:         str
-    tech_stack:     tuple[str, ...]
-    interview_type: str = "default"  # Consul KV 분기 (MVP-2)
+    interview_id:     int
+    question_id:      int
+    s3_key:           str
+    tech_stack:       tuple[str, ...]
+    question_content: str
+    interview_type:   str = "default"  # Consul KV 분기 (MVP-2)
 
 
 # ──────────────────────────────────────────────
@@ -148,14 +149,15 @@ class MediaService:
             )
 
             result = MediaProcessingResult(
-                interview_id=command.interview_id,
-                question_id=command.question_id,
-                transcript=transcript,
-                keywords=keyword_result,
-                gaze=gaze_result,
-                time=time_score,
-                reliability=reliability_score,
-                degraded=degraded,
+                interview_id=    command.interview_id,
+                question_id=     command.question_id,
+                question_content=command.question_content,
+                transcript=      transcript,
+                keywords=        keyword_result,
+                gaze=            gaze_result,
+                time=            time_score,
+                reliability=     reliability_score,
+                degraded=        degraded,
             )
 
             logger.info(

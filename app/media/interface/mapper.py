@@ -23,11 +23,12 @@ class MediaMapper:
     def to_process_command(req: ProcessMediaRequest) -> ProcessMediaCommand:
         """ProcessMediaRequest → ProcessMediaCommand."""
         return ProcessMediaCommand(
-            interview_id=  req.interview_id,
-            question_id=   req.question_id,
-            s3_key=        req.s3_key,
-            tech_stack=    tuple(req.tech_stack),
-            interview_type=req.interview_type,
+            interview_id=    req.interview_id,
+            question_id=     req.question_id,
+            s3_key=          req.s3_key,
+            tech_stack=      tuple(req.tech_stack),
+            question_content=req.question_content,
+            interview_type=  req.interview_type,
         )
 
     @staticmethod

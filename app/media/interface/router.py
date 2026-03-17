@@ -31,7 +31,6 @@ router    = APIRouter(prefix="/internal/v1", tags=["media"])
 _mapper   = MediaMapper()
 
 @router.post(
-    # "/process",
     "/answers/analyze",
     status_code = status.HTTP_202_ACCEPTED,
     response_model = ApiResponse[AcceptedData],
