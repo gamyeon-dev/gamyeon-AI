@@ -15,12 +15,12 @@ from fastapi import APIRouter, BackgroundTasks, Depends, status
 
 from app.core.schema import ApiResponse
 
-from media.application.service                       import MediaService
-from media.application.usecase.process_media_usecase import ProcessMediaUseCase
-from media.infrastructure.di                         import get_media_service
-from media.infrastructure.di                         import get_process_media_usecase
-from media.interface                                 import MediaMapper
-from media.interface.schema import (
+from app.media.application.service                       import MediaService
+from app.media.application.usecase.process_media_usecase import ProcessMediaUseCase
+from app.media.infrastructure.di                         import get_media_service
+from app.media.infrastructure.di                         import get_process_media_usecase
+from app.media.interface                                 import MediaMapper
+from app.media.interface.schema import (
     ProcessMediaRequest,
     GazeSegmentRequest,
     AcceptedData,
