@@ -10,8 +10,8 @@ class GazeSegmentRequest(BaseModel):
     """
 
     class Meta(BaseModel):
-        interview_id:     str = Field(..., alias="interviewId")
-        question_id:      str = Field(..., alias="questionId")
+        interview_id:     int = Field(..., alias="interviewId")
+        question_id:      int = Field(..., alias="questionId")
         timestamp:        int = Field(..., description="세그먼트 시작 epoch ms")
         segment_sequence: int = Field(..., alias="segmentSequence", ge=0)
 
@@ -50,5 +50,3 @@ class GazeSegmentRequest(BaseModel):
     events:          list[Event]     = Field(default_factory=list)
 
     model_config = {"populate_by_name": True}
-    
-    class

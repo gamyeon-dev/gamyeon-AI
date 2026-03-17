@@ -14,16 +14,19 @@ Media 모듈 FastAPI 의존성 주입 설정
 from __future__ import annotations
 
 from functools import lru_cache
-from fastapi import Depends
 
 from core.config import settings
-from media.application.service                        import MediaService
-from media.application.service_helper.gaze_aggregator import GazeAggregator
-from media.infrastructure.whisper_stt_adapter          import WhisperSTTAdapter
-from media.infrastructure.claude_haiku_adapter         import ClaudeHaikuAdapter
-from media.infrastructure.inmemory_gaze_buffer         import InMemoryGazeBuffer
-from media.infrastructure.consul_scoring_config        import ConsulScoringConfigAdapter
-from media.infrastructure.keyword_extractor_impl       import KeywordExtractorImpl
+from media.application.service                           import MediaService
+from media.application.service_helper.gaze_aggregator    import GazeAggregator
+from media.application.service_helper.media_preprocessor import MediaPreprocessor
+from media.infrastructure.whisper_stt_adapter            import WhisperSTTAdapter
+from media.infrastructure.gpt_mini_adapter               import GptMiniAdapter
+from media.infrastructure.inmemory_gaze_buffer           import InMemoryGazeBuffer
+from media.infrastructure.consul_scoring_config          import ConsulScoringConfigAdapter
+from media.infrastructure.keyword_extractor_impl         import KeywordExtractorImpl
+from media.application.usecase                           import ProcessMediaUseCase
+from media.infrastructure.spring_webhook_adapter         import SpringWebhookAdapter
+from media.infrastructure.media_event_adapter            import MediaEventAdapter
 from media.application.usecase         import ProcessMediaUseCase
 from media.infrastructure.spring_webhook_adapter import SpringWebhookAdapter
 from media.infrastructure.media_event_adapter    import MediaEventAdapter
@@ -42,10 +45,10 @@ def _get_whisper_adapter() -> WhisperSTTAdapter:
     )
 
 @lru_cache(maxsize=1)
-def _get_claude_adapter() -> ClaudeHaikuAdapter:
-    return ClaudeHaikuAdapter(
-        api_key=settings.ANTHROPIC_API_KEY,
-        model=settings.CLAUDE_HAIKU_MODEL,
+def _get_gpt_mini_adapter() -> GptMiniAdapter:
+    return GptMiniAdapter(
+        api_key=settings.OPENAI_API_KEY,
+        model=settings.GPT_MINI_MODEL,
         timeout=settings.LLM_TIMEOUT_SECONDS,
     )
 
@@ -60,7 +63,7 @@ def _get_gaze_buffer() -> InMemoryGazeBuffer:
 @lru_cache(maxsize=1)
 def _get_consul_adapter() -> ConsulScoringConfigAdapter:
     return ConsulScoringConfigAdapter(
-        consul_url=settings.CONSUL_URL,
+        url=settings.CONSUL_URL,
         token=settings.CONSUL_TOKEN,
     )
 
@@ -81,37 +84,53 @@ def _get_spring_webhook_adapter() -> SpringWebhookAdapter:
 def _get_media_event_adapter() -> MediaEventAdapter:
     return MediaEventAdapter()
 
-# @lru_cache(maxsize=1)
-# def get_process_media_usecase() -> ProcessMediaUseCase:
-#     return ProcessMediaUseCase(
-#         service=      get_media_service(),
-#         webhook_port= _get_spring_webhook_adapter(),
-#         event_port=   _get_media_event_adapter(),
-#     )
+@lru_cache(maxsize=1)
+def _get_media_preprocessor() -> MediaPreprocessor:
+    return MediaPreprocessor(s3_bucket=settings.S3_BUCKET)
 
-# # FastAPI Depends 진입점
-# def get_media_service(
-#     stt_port=         Depends(_get_whisper_adapter),
-#     correction_port=  Depends(_get_claude_adapter),
-#     gaze_buffer=      Depends(_get_gaze_buffer),
-#     scoring_config=   Depends(_get_consul_adapter),
-#     keyword_extractor=Depends(_get_keyword_extractor),
-#     gaze_aggregator=  Depends(_get_gaze_aggregator),
-# ) -> MediaService:
-#     """
-#     MediaService FastAPI 의존성
+# ── lru_cache 직접 조립 (Depends 컨텍스트 밖 호출용) ──────────────
+@lru_cache(maxsize=1)
+def _build_media_service() -> MediaService:
+    """
+    어댑터를 직접 조립하는 싱글턴 팩토리.
 
-#     router.py 사용 예:
-#     @router.post("/internal/media/process")
-#     async def process(
-#         service: MediaService = Depends(get_media_service),
-#     ): ...
-#     """
-#     return MediaService(
-#         stt_port=          stt_port,
-#         correction_port=   correction_port,
-#         gaze_buffer=       gaze_buffer,
-#         scoring_config=    scoring_config,
-#         keyword_extractor= keyword_extractor,
-#         gaze_aggregator=   gaze_aggregator,
-#     )
+    Depends 없이 lru_cache 어댑터를 직접 호출해 MediaService를 생성.
+    get_process_media_usecase()처럼 FastAPI 컨텍스트 밖에서 호출할 때 사용.
+    어댑터 교체는 이 파일의 각 _get_*() 함수만 수정하면 됨.
+    """
+    return MediaService(
+        stt_port=          _get_whisper_adapter(),
+        correction_port=   _get_gpt_mini_adapter(),
+        gaze_buffer=       _get_gaze_buffer(),
+        scoring_config=    _get_consul_adapter(),
+        keyword_extractor= _get_keyword_extractor(),
+        gaze_aggregator=   _get_gaze_aggregator(),
+        media_preprocessor=_get_media_preprocessor(),
+    )
+
+@lru_cache(maxsize=1)
+def get_process_media_usecase() -> ProcessMediaUseCase:
+    """
+    ProcessMediaUseCase 싱글턴.
+
+    _build_media_service()를 직접 호출해 Depends 객체가 주입되는 문제 방지.
+    router.py에서 Depends(get_process_media_usecase)로 사용.
+    """
+    return ProcessMediaUseCase(
+        service=      _build_media_service(),
+        webhook_port= _get_spring_webhook_adapter(),
+        event_port=   _get_media_event_adapter(),
+    )
+
+# ── FastAPI Depends 진입점 ──────────────────────────────────────────
+def get_media_service() -> MediaService:
+    """
+    router.py의 Depends 진입점.
+
+    내부에서 _build_media_service() 싱글턴을 반환하므로
+    매 요청마다 새 인스턴스를 만들지 않음.
+
+    router.py 사용 예:
+        service: MediaService = Depends(get_media_service)
+    """
+    return _build_media_service()

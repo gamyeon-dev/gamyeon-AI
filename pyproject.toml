@@ -9,6 +9,7 @@ dependencies = [
     "blinker>=1.9.0",
     "fastapi[standard]>=0.133.1",
     "faster-whisper>=1.2.1",
+    "ffprobe>=0.5",
     "langchain>=1.2.10",
     "langchain-community>=0.4.1",
     "langchain-openai>=1.1.10",

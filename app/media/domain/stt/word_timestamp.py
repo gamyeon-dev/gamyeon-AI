@@ -22,7 +22,7 @@ class WordTimestamp:
     end:         float
     probability: float
 
-    def __post_init__(self) -> None :
-        self.start = r3(self.start)
-        self.end - r3(self.end)
-        self.probability = r2(self.probability)
+    def __post_init__(self) -> None:
+      object.__setattr__(self, 'start',       r3(self.start))
+      object.__setattr__(self, 'end',         r3(self.end))
+      object.__setattr__(self, 'probability', r2(self.probability))

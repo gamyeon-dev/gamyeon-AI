@@ -19,12 +19,12 @@ class ProcessMediaRequest(BaseModel):
     - 빈 배열 허용 → 일반 IT 용어 기준 교정 진행
 
     interview_type:
-      Consul KV 분기 키
-      MVP1: "default" 고정
-      MVP2: "tech" | "personality" | "executive"
+    - Consul KV 분기 키
+    - MVP1: "default" 고정
+    - MVP2: "tech" | "personality" | "executive"
     """
-    interview_id:   str       = Field(..., description = "면접 세션 ID")
-    question_id:    str       = Field(..., description = "질문 ID")
+    interview_id:   int       = Field(..., description = "면접 세션 ID")
+    question_id:    int       = Field(..., description = "질문 ID")
     s3_key:         str       = Field(..., description = "S3 영상 키 (webm/mp4)")
     tech_stack:     list[str] = Field(default_factory = list)
     interview_type: str       = Field(default = "default")
