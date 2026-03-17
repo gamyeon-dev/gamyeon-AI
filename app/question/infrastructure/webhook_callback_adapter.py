@@ -13,6 +13,6 @@ class WebhookCallbackAdapter(CallbackPort):
     async def send(self, url: str, payload: QuestionCallbackPayload) -> None:
         await self._sender.send(
             url=     url,
-            payload= payload.model_dump(),
+            payload= payload.model_dump(by_alias=True),
             target=  TARGET,
         )

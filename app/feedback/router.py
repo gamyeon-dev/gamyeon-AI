@@ -1,24 +1,20 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, BackgroundTasks, Depends
 from app.core.schema import ApiResponse
 from app.feedback.application.service import FeedbackService
 from app.feedback.infrastructure.di import get_feedback_service
-from app.feedback.schema.request import FeedbackRequest
+from app.feedback.schema.request import FeedbackEventRequest
 from app.feedback.schema.response import FeedbackResponse
+
+
 
 router = APIRouter(prefix="/internal/v1/feedbacks", tags=["feedback"])
 
 
-@router.post("/generate", response_model=ApiResponse[FeedbackResponse])
+@router.post("/generate", status_code=202)
 async def generate_feedback(
-    request: FeedbackRequest,
+    request: FeedbackEventRequest,
+    background_tasks: BackgroundTasks,
     service: FeedbackService = Depends(get_feedback_service),
-) -> ApiResponse[FeedbackResponse]:
-
-    result = await service.generate_feedback(request)
-
-    return ApiResponse(
-        success = True,
-        code    = "FDBK-S000",
-        message = "success",
-        data    = result,
-    )
+):
+    background_tasks.add_task(service.run, request)
+    return {"success": True, "code": "S000", "message": "success", "data": None}
