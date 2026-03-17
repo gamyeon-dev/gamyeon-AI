@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from app.report.router import router as report_router
 
 from app.question.router import router as question_router
+from app.media.interface.router import router as media_router
 import consul, os, uuid
 
 from app.core.schema import ApiResponse
@@ -93,3 +94,4 @@ async def global_exception_handler(request: Request, exc: Exception):
 app.include_router(feedback_router)
 app.include_router(question_router)
 app.include_router(report_router)
+app.include_router(media_router)
