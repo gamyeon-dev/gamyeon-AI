@@ -1,19 +1,16 @@
 import consul
 import json
+from urllib.parse import urlparse
 
 class ConsulHelper:
-    def __init__(self, host='consul', port=8500):
-        self.c = consul.Consul(host=host, port=port)
+    def __init__(self, host='consul', port=8500, url=None, token=None):
+        if url:
+            parsed = urlparse(url)
+            host = parsed.hostname or host
+            port = parsed.port or port
+        self.c = consul.Consul(host=host, port=port, token=token or "")
 
     def get_config(self, key):
-        """Consul KV에서 설정값을 가져와 딕셔너리로 반환
-        
-        args :
-            key: consul상의 key
-
-        returns :
-            key에 해당되는 value의 딕셔너리
-        """
         _, data = self.c.kv.get(key)
         if data:
             raw_val = data['Value'].decode('utf-8')
@@ -21,4 +18,4 @@ class ConsulHelper:
                 return json.loads(raw_val)
             except json.JSONDecodeError:
                 return raw_val
-        return {} # 값이 없으면 빈 딕셔너리 반환
+        return {}
