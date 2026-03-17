@@ -9,8 +9,8 @@ from app.report.schema.response import ReportResponse
 
 
 # convention: /[prefix]/[version]/[domain]/[action]
-# → POST /internal/v1/report/generate
-router = APIRouter(prefix="/internal/v1/report", tags=["report"])
+# → POST /internal/v1/reports/generate
+router = APIRouter(prefix="/internal/v1/reports", tags=["report"])
 
 
 @router.post("/generate")
