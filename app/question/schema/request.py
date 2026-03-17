@@ -28,7 +28,3 @@ def get_file_key(self, file_type: str) -> str | None:
             if f.fileType == file_type:
                 return f.fileKey
         return None
-    
-
-    
-

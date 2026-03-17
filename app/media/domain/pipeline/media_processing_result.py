@@ -26,7 +26,7 @@ class MediaProcessingResult:
     """
     interview_id: int
     question_id:  int
-    question_content: str // 추가되어야 함
+    # question_content: str // 추가되어야 함
     transcript:   TranscriptState
     keywords:     KeywordResult
     gaze:         GazeResult
