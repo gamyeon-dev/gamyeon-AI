@@ -91,6 +91,6 @@ class QuestionService:
 
         # 8. Webhook 전송
         await self._callback.send(
-            url=request.callbackUrl,
+            url=request.callback,
             payload=payload,
         )

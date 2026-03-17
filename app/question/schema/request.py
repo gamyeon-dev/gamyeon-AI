@@ -17,7 +17,7 @@ class QuestionGenerateRequest(BaseModel):
     )
       intvId:      int
       files:       list[FileEntry]
-      callbackUrl: str
+      callback: str
       resume_url: str
       portfolio_url: str | None = None
       self_introduction_url: str | None = None

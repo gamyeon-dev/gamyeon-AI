@@ -12,7 +12,7 @@ PS C:\Users\user\Documents\GitHub\gamyeon-AI> uv run python callback_receiver.py
       "fileKey": "sample/resume.pdf"
     }
   ],
-  "callbackUrl": "http://127.0.0.1:9000/internal/v1/questions/callback"
+  "callback": "http://127.0.0.1:9000/internal/v1/questions/callback"
 }
 
 ```
