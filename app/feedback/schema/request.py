@@ -23,11 +23,10 @@ class FeedbackRequest(BaseModel):
     intv_question_id:     int
     question_text:        str
     corrected_transcript: str
-     # ! reliability
 
+   
     degraded:             bool = False
-    reliability_score:    int  = Field(default=100, ge=0, le=100)
-
+    reliability_score:    int  = Field(default=0, ge=0, le=100)
     gaze_score:           int  = Field(default=0,   ge=0, le=100)
     time_score:           int  = Field(default=0,   ge=0, le=100)
     answer_duration_ms:   int  = Field(default=0,   ge=0)

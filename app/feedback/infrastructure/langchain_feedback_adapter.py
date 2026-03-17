@@ -28,7 +28,7 @@ class LangchainFeedbackAdapter(FeedbackPort):
 
     # 사전 차단 기준값
     MIN_TRANSCRIPT_LENGTH = 10
-    MIN_RELIABILITY_SCORE = 50
+    MIN_RELIABILITY_SCORE = 40
  
     def __init__(
         self,
@@ -84,6 +84,7 @@ class LangchainFeedbackAdapter(FeedbackPort):
     @staticmethod
     def _extract_media_scores(request: FeedbackRequest) -> dict:
         return {
+            "reliability_score": request.reliability_score,
             "gaze_score":         request.gaze_score,
             "time_score":         request.time_score,
             "answer_duration_ms": request.answer_duration_ms,

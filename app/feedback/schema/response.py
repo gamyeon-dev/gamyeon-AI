@@ -2,7 +2,7 @@ from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 from typing import Optional
 
- # ! reliability
+
 class FeedbackResponse(BaseModel):
     model_config = ConfigDict(
         alias_generator=to_camel,
@@ -12,6 +12,7 @@ class FeedbackResponse(BaseModel):
     
     intv_question_id:          int
     status:                    str
+    reliability_score: int=0
     logic_score:               Optional[int] = None
     answer_composition_score:  Optional[int] = None
     characteristic:            Optional[str] = None
