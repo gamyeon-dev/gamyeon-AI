@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
+from pydantic.alias_generators import to_camel
 
 class GazeSegmentRequest(BaseModel):
     """
@@ -9,6 +10,11 @@ class GazeSegmentRequest(BaseModel):
     segmentSequence 기준 GazeBufferPort 정렬 삽입
     """
 
+    model_config = ConfigDict(
+        alias_generator=to_camel,      # ← 추가: snake_case → camelCase 자동 변환
+        populate_by_name=True,
+    )
+    
     class Meta(BaseModel):
         interview_id:     int = Field(..., alias="intvId")
         question_id:      int = Field(..., alias="questionSetId")
