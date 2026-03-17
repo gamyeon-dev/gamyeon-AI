@@ -8,12 +8,12 @@ class FeedbackStatus(str, Enum):
         alias_generator=to_camel,
         populate_by_name=True, # Spring이 보낸 camelCase를 받아들임
     )
-    SUCCEED = "SUCCEED"
-    FAILED = "FAILED"
+        SUCCEED = "SUCCEED"
+        FAILED = "FAILED"
 
 
 class FeedbackItem(BaseModel):
-     
+    
     intv_question_id: int 
     model_config = ConfigDict(
         alias_generator=to_camel,
