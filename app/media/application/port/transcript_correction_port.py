@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from media.domain import CorrectionResult
+from app.media.domain import CorrectionResult
 
 class TranscriptCorrectionPort(ABC):
     """

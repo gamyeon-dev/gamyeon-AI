@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import logging
 
-from core.webhook import WebhookSender, RetryPolicy
-from core.config  import settings
+from app.core.webhook import WebhookSender, RetryPolicy
+from app.core.config  import settings
 
-from media.application.port.result_webhook_port    import ResultWebhookPort
-from media.domain.pipeline.media_processing_result import MediaProcessingResult
-from media.interface.schema.webhook                import WebhookFailedPayload
+from app.media.application.port.result_webhook_port    import ResultWebhookPort
+from app.media.domain.pipeline.media_processing_result import MediaProcessingResult
+from app.media.interface.schema.webhook                import WebhookFailedPayload
 
 logger = logging.getLogger(__name__)
 

@@ -1,7 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
 
-from media.interface.schema.webhook import (
+from app.media.interface.schema.webhook import (
     WebhookSuccessPayload,
     WebhookFailedPayload,
     TranscriptPayload,
@@ -11,7 +11,7 @@ from media.interface.schema.webhook import (
     KeywordCandidatePayload,
 )
 
-from media.domain import (
+from app.media.domain import (
     TranscriptState,
     GazeResult,
     KeywordResult,

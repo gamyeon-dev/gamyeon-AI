@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from media.domain import GazeSegment
+from app.media.domain import GazeSegment
 
 
 class GazeBufferPort(ABC) :

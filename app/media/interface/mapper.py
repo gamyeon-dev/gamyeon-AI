@@ -9,9 +9,9 @@
 
 from __future__ import annotations
 
-from media.interface.schema import ProcessMediaRequest, GazeSegmentRequest
-from media.application.service import ProcessMediaCommand
-from media.domain import (
+from app.media.interface.schema import ProcessMediaRequest, GazeSegmentRequest
+from app.media.application.service import ProcessMediaCommand
+from app.media.domain import (
     GazeSegment, GazeSegmentMeta, GazeMetricsSummary,
     GazeCoordinate, GazeVector, HeadPose,
     GazeRawFrame, GazeEvent, GazeEventType, GazeDirection,

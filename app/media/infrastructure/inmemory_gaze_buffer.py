@@ -18,8 +18,8 @@ import asyncio
 import logging
 from collections import defaultdict
 
-from media.application.port.gaze_buffer_port import GazeBufferPort
-from media.domain import GazeSegment
+from app.media.application.port.gaze_buffer_port import GazeBufferPort
+from app.media.domain import GazeSegment
 
 logger = logging.getLogger(__name__)
 
