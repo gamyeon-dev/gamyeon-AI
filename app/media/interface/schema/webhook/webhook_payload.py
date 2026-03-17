@@ -49,12 +49,12 @@ class WebhookSuccessPayload(BaseModel):
     STT + Keywords 처리 완료 Webhook 페이로드
     Spring Boot가 수신 후 DB 저장 + 프론트 전송 담당
     """
-    interview_id: int = Field(..., alias="interviewId")
-    question_id:  int = Field(..., alias="questionId")
-    status:       Literal["DONE"] = "DONE"
-    degraded:     bool
-    transcript:   TranscriptPayload
-    keywords:     KeywordsPayload
+    interview_id:     int = Field(..., alias="interviewId")
+    question_id:      int = Field(..., alias="questionId")
+    status:           Literal["DONE"] = "DONE"
+    degraded:         bool
+    transcript:       TranscriptPayload
+    keywords:         KeywordsPayload
 
 # 처리 실패 페이로드 (FAILED)
 class WebhookFailedPayload(BaseModel):
