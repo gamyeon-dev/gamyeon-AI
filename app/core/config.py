@@ -35,4 +35,4 @@ class Settings(BaseSettings):
     
     OPENAI_API_KEY:  str
 
-settings = Settings()"MEDIA_SPRING_WEBHOOK_URL": "
+settings = Settings()
