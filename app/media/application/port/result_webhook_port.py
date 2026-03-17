@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from media.domain.pipeline.media_processing_result import MediaProcessingResult
+from app.media.domain.pipeline.media_processing_result import MediaProcessingResult
 
 class ResultWebhookPort(ABC):
     """

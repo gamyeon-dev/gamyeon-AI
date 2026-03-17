@@ -15,21 +15,21 @@ from __future__ import annotations
 
 from functools import lru_cache
 
-from core.config import settings
-from media.application.service                           import MediaService
-from media.application.service_helper.gaze_aggregator    import GazeAggregator
-from media.application.service_helper.media_preprocessor import MediaPreprocessor
-from media.infrastructure.whisper_stt_adapter            import WhisperSTTAdapter
-from media.infrastructure.gpt_mini_adapter               import GptMiniAdapter
-from media.infrastructure.inmemory_gaze_buffer           import InMemoryGazeBuffer
-from media.infrastructure.consul_scoring_config          import ConsulScoringConfigAdapter
-from media.infrastructure.keyword_extractor_impl         import KeywordExtractorImpl
-from media.application.usecase                           import ProcessMediaUseCase
-from media.infrastructure.spring_webhook_adapter         import SpringWebhookAdapter
-from media.infrastructure.media_event_adapter            import MediaEventAdapter
-from media.application.usecase         import ProcessMediaUseCase
-from media.infrastructure.spring_webhook_adapter import SpringWebhookAdapter
-from media.infrastructure.media_event_adapter    import MediaEventAdapter
+from app.core.config import settings
+from app.media.application.service                           import MediaService
+from app.media.application.service_helper.gaze_aggregator    import GazeAggregator
+from app.media.application.service_helper.media_preprocessor import MediaPreprocessor
+from app.media.infrastructure.whisper_stt_adapter            import WhisperSTTAdapter
+from app.media.infrastructure.gpt_mini_adapter               import GptMiniAdapter
+from app.media.infrastructure.inmemory_gaze_buffer           import InMemoryGazeBuffer
+from app.media.infrastructure.consul_scoring_config          import ConsulScoringConfigAdapter
+from app.media.infrastructure.keyword_extractor_impl         import KeywordExtractorImpl
+from app.media.application.usecase                           import ProcessMediaUseCase
+from app.media.infrastructure.spring_webhook_adapter         import SpringWebhookAdapter
+from app.media.infrastructure.media_event_adapter            import MediaEventAdapter
+from app.media.application.usecase         import ProcessMediaUseCase
+from app.media.infrastructure.spring_webhook_adapter import SpringWebhookAdapter
+from app.media.infrastructure.media_event_adapter    import MediaEventAdapter
 
 # 싱글턴 어댑터 (애플리케이션 생명주기와 동일)
 @lru_cache(maxsize=1)

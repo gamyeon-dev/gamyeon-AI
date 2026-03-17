@@ -80,9 +80,9 @@ def subscribe(
                 동기/비동기 모두 지원
 
     사용 예:
-        from core.events import bus
-        from core.events.signals import media_completed
-        from feedback.application.service import FeedbackService
+        from app.core.events import bus
+        from app.core.events.signals import media_completed
+        from app.feedback.application.service import FeedbackService
 
         bus.subscribe(media_completed, feedback_service.on_media_completed)
     """

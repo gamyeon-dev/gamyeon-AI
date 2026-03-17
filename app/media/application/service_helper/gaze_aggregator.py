@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from media.domain import (
+from app.media.domain import (
     GazeSegment, GazeResult, GazeSummary,
 )
-from media.domain._shared.normalizer import r2, r3
+from app.media.domain._shared.normalizer import r2, r3
 
 
 class GazeAggregator:

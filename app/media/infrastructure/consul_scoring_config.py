@@ -24,9 +24,9 @@ import logging
 import time
 from dataclasses import dataclass
 
-from core.consul_helper import ConsulHelper
-from media.application.port.scoring_config_port import ScoringConfigPort
-from media.domain import ScoringConfig
+from app.core.consul_helper import ConsulHelper
+from app.media.application.port.scoring_config_port import ScoringConfigPort
+from app.media.domain import ScoringConfig
 
 logger = logging.getLogger(__name__)
 

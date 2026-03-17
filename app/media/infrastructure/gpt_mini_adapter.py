@@ -17,10 +17,10 @@ from typing import Any
 
 from openai import AsyncOpenAI
 
-from media.application.port.transcript_correction_port import TranscriptCorrectionPort
-from media.domain.correction.correction_result         import CorrectionResult
-from media.domain.correction.correction_entry          import CorrectionEntry
-from media.domain.correction.correction_type           import CorrectionType
+from app.media.application.port.transcript_correction_port import TranscriptCorrectionPort
+from app.media.domain.correction.correction_result         import CorrectionResult
+from app.media.domain.correction.correction_entry          import CorrectionEntry
+from app.media.domain.correction.correction_type           import CorrectionType
 
 logger = logging.getLogger(__name__)
 

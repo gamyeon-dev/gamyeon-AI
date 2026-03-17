@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from report.domain.report_model import ReportResult, FeedbackItem, MetaInfo
+from app.report.domain.report_model import ReportResult, FeedbackItem, MetaInfo
 
 class ReportGeneratorPort(ABC):
     @abstractmethod

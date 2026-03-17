@@ -14,8 +14,8 @@ from __future__ import annotations
 import logging
 from collections import Counter
 
-from media.application.service_helper.keyword_extractor import KeywordExtractor
-from media.domain import KeywordResult, KeywordCandidate
+from app.media.application.service_helper.keyword_extractor import KeywordExtractor
+from app.media.domain import KeywordResult, KeywordCandidate
 
 logger = logging.getLogger(__name__)
 

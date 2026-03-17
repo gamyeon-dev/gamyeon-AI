@@ -22,7 +22,7 @@ from pathlib import Path
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
 
-from core.exceptions import (
+from app.core.exceptions import (
     MediaDownloadError,
     MediaValidationError,
     AudioExtractionError,

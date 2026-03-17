@@ -3,7 +3,7 @@ media.domain 외부 노출 단일 진입점
 내부 BC 폴더 구조를 외부에 노출하지 않음
 
 사용 예:
-- from media.domain import STTResult, GazeResult, MediaProcessingResult
+- from app.media.domain import STTResult, GazeResult, MediaProcessingResult
 """
 
 # STT BC

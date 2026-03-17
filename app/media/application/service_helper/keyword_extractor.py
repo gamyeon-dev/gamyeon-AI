@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from media.domain import KeywordResult, KeywordCandidate
+from app.media.domain import KeywordResult, KeywordCandidate
 
 class KeywordExtractor:
     """

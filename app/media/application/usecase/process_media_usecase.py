@@ -2,15 +2,15 @@ from __future__ import annotations
 
 import logging
 
-from core.exceptions import (
+from app.core.exceptions import (
     STTTranscriptionError,
     MediaDownloadError,
     MediaValidationError,
     AudioExtractionError,
 )
 
-from media.application.service          import MediaService, ProcessMediaCommand
-from media.application.port             import ResultWebhookPort, MediaEventPort
+from app.media.application.service          import MediaService, ProcessMediaCommand
+from app.media.application.port             import ResultWebhookPort, MediaEventPort
 
 logger = logging.getLogger(__name__)
 

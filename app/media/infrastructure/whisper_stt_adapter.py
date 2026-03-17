@@ -18,12 +18,12 @@ from pathlib import Path
 
 from faster_whisper import WhisperModel
 
-from media.application.port.stt_port import STTPort
-from media.domain import (
+from app.media.application.port.stt_port import STTPort
+from app.media.domain import (
     STTResult, STTModelType,
     WordTimestamp,
 )
-from core.exceptions import STTTranscriptionError
+from app.core.exceptions import STTTranscriptionError
 
 logger = logging.getLogger(__name__)
 

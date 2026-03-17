@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from media.domain import ScoringConfig
+from app.media.domain import ScoringConfig
 
 
 class ScoringConfigPort(ABC) :

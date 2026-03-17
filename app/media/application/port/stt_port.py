@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from media.domain import STTResult
+from app.media.domain import STTResult
 
 class STTPort(ABC) :
     """
