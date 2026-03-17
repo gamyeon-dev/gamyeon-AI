@@ -28,7 +28,3 @@ class QuestionGenerateRequest(BaseModel):
             if f.fileType == file_type:
                 return f.fileKey
         return None
-    
-
-    
-
