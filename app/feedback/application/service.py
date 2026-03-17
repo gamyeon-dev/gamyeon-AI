@@ -1,9 +1,13 @@
+import logging
+from app.core.config import settings
 from app.core.config import settings
 from app.feedback.application.port.feedback_port import FeedbackPort
 from app.feedback.application.port.callback_port import FeedbackCallbackPort
 from app.feedback.domain.feedback_model import QuestionFeedback
 from app.feedback.schema.request import FeedbackRequest, FeedbackEventRequest
 from app.feedback.schema.response import FeedbackResponse
+
+logger = logging.getLogger(__name__)
 
 
 class FeedbackService:
@@ -30,7 +34,7 @@ class FeedbackService:
             payload=payload,
         )
 
-    # ── FeedbackEventRequest → FeedbackRequest (어댑터 입력) ────
+    # ── FeedbackEventRequest → FeedbackRequest ───────────────────
     @staticmethod
     def _to_request(event: FeedbackEventRequest) -> FeedbackRequest:
         return FeedbackRequest(
