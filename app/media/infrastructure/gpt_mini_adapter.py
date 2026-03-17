@@ -1,11 +1,5 @@
 """
-S5 TranscriptCorrectionPort 구현체
-
-Claude Haiku 3.5 선택 이유:
-    ① 속도: Sonnet 대비 3~4배 빠름 -> STT 직후 연속 호출 → 지연 최소화 필요
-    ② 비용: Sonnet 대비 약 10배 저렴 -> 질문당 1회 호출 → 누적 비용 중요
-    ③ 품질: 교정 태스크는 창의성 불필요 -> 구조화된 JSON 출력 + Few-shot → Haiku로 충분
-    ④ 컨텍스트: 면접 답변 평균 200~500 토큰 -> Haiku 컨텍스트 윈도우 내 충분히 처리 가능
+TranscriptCorrectionPort 구현체
 
 프롬프트 파일:
 - prompts/correction/correction.yaml  시스템 프롬프트 + human 템플릿 + tech_hint
@@ -17,12 +11,11 @@ Degraded Mode:
 """
 from __future__ import annotations
 
-import json, logging
+import json, logging, yaml
 from pathlib import Path
 from typing import Any
 
-import yaml
-import anthropic
+from openai import AsyncOpenAI
 
 from media.application.port.transcript_correction_port import TranscriptCorrectionPort
 from media.domain.correction.correction_result         import CorrectionResult
@@ -33,9 +26,9 @@ logger = logging.getLogger(__name__)
 
 _PROMPT_DIR = Path(__file__).parent /"prompts"/"correction"
 
-class ClaudeHaikuAdapter(TranscriptCorrectionPort):
+class GptMiniAdapter(TranscriptCorrectionPort):
     """
-    Claude Haiku 3.5 TranscriptCorrectionPort 구현체
+    GPT 4o mini TranscriptCorrectionPort 구현체
 
     초기화 시 프롬프트 파일 1회 로드:
     - correction.yaml → system_prompt, human_prompt, tech_hint
@@ -45,10 +38,10 @@ class ClaudeHaikuAdapter(TranscriptCorrectionPort):
     def __init__(
         self,
         api_key: str,
-        model: str   = "claude-haiku-4-5-20251001",
+        model: str,
         timeout: float = 15.0,
     ) -> None:
-        self._client  = anthropic.Anthropic(api_key=api_key)
+        self._client  = AsyncOpenAI(api_key=api_key)
         self._model   = model
         self._timeout = timeout
 
@@ -62,10 +55,10 @@ class ClaudeHaikuAdapter(TranscriptCorrectionPort):
 
         # few-shot.json 로드
         with open(_PROMPT_DIR / "few_shot.json", encoding = "utf-8") as f :
-            self._few_shot: list[dict] = json.load(f)
+            self._few_shot: list[dict] = json.load(f)["data"]
 
         logger.info(
-            "[MEDIA]ClaudeHaikuAdapter 초기화 완료 model=%s few_shot=%d개",
+            "[MEDIA]GptMiniAdapter 초기화 완료 model=%s few_shot=%d개",
             self._model, len(self._few_shot),
         )
 
@@ -83,7 +76,7 @@ class ClaudeHaikuAdapter(TranscriptCorrectionPort):
             return self._parse_response(raw_json, raw_transcript)
 
         except Exception as e:
-            logger.warning("[MEDIA - CLAUDE_HAIKU]LLM 교정 실패 — Degraded 전환: %s", e)
+            logger.warning("[MEDIA - GPT]LLM 교정 실패 — Degraded 전환: %s", e)
             return self._degraded_result(raw_transcript)
 
 
@@ -92,7 +85,7 @@ class ClaudeHaikuAdapter(TranscriptCorrectionPort):
         self,
         raw_transcript: str,
         tech_stack: list[str],
-    ) -> CorrectionResult :
+    ) -> dict[str, Any]:
         """
         Claude API 호출
         JSON 파싱 실패 시 1회 재시도 (JSON only 강조 추가)
@@ -101,25 +94,28 @@ class ClaudeHaikuAdapter(TranscriptCorrectionPort):
 
         for attempt in range(2) :
             try:
-                response = self._client.messages.create(
+                system_content = (
+                    self._system_prompt if attempt == 0
+                    else self._system_prompt + "\n반드시 JSON만 반환하세요."
+                )
+                response = await self._client.chat.completions.create(
                     model=self._model,
                     max_tokens=1000,
-                    system=(
-                        self._system_prompt if attempt == 0
-                        else self._system_prompt + "\n반드시 JSON만 반환하세요."
-                    ),
-                    messages=[{"role": "user", "content": user_content}],
+                    messages=[
+                        {"role": "system", "content": system_content},
+                        {"role": "user",   "content": user_content},
+                    ],
                     timeout=self._timeout,
                 )
-                return json.loads(response.content[0].text.strip())
+                return json.loads(response.choices[0].message.content.strip())
 
             except json.JSONDecodeError as e :
                 if attempt == 0:
-                    logger.warning("[MEDIA - CLAUDE_HAIKU]JSON 파싱 실패 — 1회 재시도: %s", e)
+                    logger.warning("[MEDIA - GPT]JSON 파싱 실패 — 1회 재시도: %s", e)
                     continue
                 raise
 
-        raise RuntimeError("[MEDIA - CLAUDE_HAIKU]JSON 파싱 2회 모두 실패")
+        raise RuntimeError("[MEDIA - GPT]JSON 파싱 2회 모두 실패")
 
     def _build_user_prompt(
         self,
@@ -136,7 +132,7 @@ class ClaudeHaikuAdapter(TranscriptCorrectionPort):
         - tech_stack 없음 → without_stack 텍스트 → 일반 IT 용어 기준 교정 진행.
         """
         return self._human_prompt.format(
-            few_shot_example = self._build_few_shot_text(),
+            few_shot_examples = self._build_few_shot_text(),
             tech_hint = self._build_tech_hint(tech_stack),
             raw_transcript = raw_transcript
         )
@@ -199,7 +195,7 @@ class ClaudeHaikuAdapter(TranscriptCorrectionPort):
             )
         
         except (KeyError, ValueError) as e:
-            logger.warning("[MEDIA - CLAUDE_HAIKU]응답 파싱 실패 — Degraded 처리: %s", e)
+            logger.warning("[MEDIA - GPT]응답 파싱 실패 — Degraded 처리: %s", e)
             return self._degraded_result(raw_transcript)
 
     @staticmethod

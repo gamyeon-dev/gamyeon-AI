@@ -49,12 +49,16 @@ class ConsulScoringConfigAdapter(ScoringConfigPort):
     - Consul 장애 시: 만료 캐시라도 사용 (경고 로그) -> 캐시도 없으면 ScoringConfig 기본값.
     """
 
-    def __init__(self, consul_helper: ConsulHelper) -> None:
+    def __init__(self, url: str, token: str) -> None:
         """
         Args:
-            consul_helper: core/consul_helper.py ConsulHelper 인스턴스 -> DI에서 주입.
+            url:   Consul HTTP API 주소 (settings.CONSUL_URL)
+            token: Consul ACL 토큰     (settings.CONSUL_TOKEN)
+
+        ConsulHelper는 어댑터 내부 구현 세부사항이므로
+        DI가 ConsulHelper를 알 필요 없이 설정 값만 받아 내부에서 생성.
         """
-        self._consul  = consul_helper
+        self._consul  = ConsulHelper(url=url, token=token)
         self._cache: dict[str, _CacheEntry] = {}
 
     async def get_config(

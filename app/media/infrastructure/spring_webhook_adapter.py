@@ -30,7 +30,7 @@ class SpringWebhookAdapter(ResultWebhookPort):
         """
         await self._sender.send(
             url=    settings.SPRING_WEBHOOK_URL,
-            payload=result.to_spring_webhook_payload().model_dump(),
+            payload=result.to_spring_webhook_payload().model_dump(by_alias=True),
             target= "spring_webhook",
         )
         logger.info(
@@ -62,7 +62,7 @@ class SpringWebhookAdapter(ResultWebhookPort):
                 questionId= question_id,
                 errorCode=  error_code,
                 message=    message,
-            ).model_dump(),
+            ).model_dump(by_alias=True),
             target= "spring_webhook_failed",
         )
         logger.info(
