@@ -15,8 +15,8 @@ class QuestionGenerateRequest(BaseModel):
         alias_generator=to_camel,
         populate_by_name=True, # Spring이 보낸 camelCase를 받아들임
     )
-    intvId:      int
-    files:       list[FileEntry]
+    intvId: int
+    files: list[FileEntry]
     callbackUrl: str
     resume_url: str
     portfolio_url: str | None = None
