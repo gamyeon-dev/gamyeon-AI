@@ -27,7 +27,7 @@ class QuestionSummary:
 
 @dataclass
 class ReportResult:
-    interview_id: int
+    intv_id: int
     job_category: Optional[str]
     answered_count: int
     avg_answer_duration_ms: int

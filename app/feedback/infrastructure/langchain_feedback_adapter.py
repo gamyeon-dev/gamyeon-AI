@@ -100,7 +100,7 @@ class LangchainFeedbackAdapter(FeedbackPort):
     ) -> QuestionFeedback:
         return QuestionFeedback(
             intv_question_id         = request.intv_question_id,
-            status                   = FeedbackStatus.COMPLETED,
+            status                   = FeedbackStatus.SUCCEED,
             logic_score              = output.logic_score,
             answer_composition_score = output.answer_composition_score,
             characteristic           = output.characteristic,

@@ -29,7 +29,7 @@ class QuestionFeedback:
     time_score:                int                 = 0
     answer_duration_ms:        int                 = 0
     keyword_count:             int                 = 0
-    reliability_score:        int                 = 0
+    reliability_score:        int                  = 0
 
 
     @staticmethod

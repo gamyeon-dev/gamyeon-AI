@@ -9,7 +9,7 @@ def make_feedback(**kwargs) -> FeedbackItem:
     defaults = {
         "intv_question_id": "q_01",
         "question": "본인의 강점을 말해주세요",
-        "status": FeedbackStatus.COMPLETED,
+        "status": FeedbackStatus.SUCCEED,
         "logic_score": 80,
         "answer_composition_score": 75,
         "answer_summary": "summary",
