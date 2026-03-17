@@ -13,21 +13,25 @@ class Settings(BaseSettings):
     S3_BUCKET:             str          # 영상 저장 버킷 이름
 
     # ── Whisper STT ───────────────────────────────────────────────
+    WHISPER_DEVICE:        str = "cpu"  # "cpu" | "cuda"
+    WHISPER_COMPUTE_TYPE:  str = "int8"  # "int8" | "float16" | "float32"
+
+    # ── Claude (LLM 교정) ─────────────────────────────────────────
+    OPENAI_API_KEY:        str
+    GPT_MINI_MODEL:        str   = "gpt-4o-mini"
+    LLM_TIMEOUT_SECONDS:   float = 15.0
+
+    # ── Consul (점수 정책) ────────────────────────────────────────
+    CONSUL_URL:            str = "http://consul:8500"
+    CONSUL_TOKEN:          str = ""
+
+    # ── Whisper STT ───────────────────────────────────────────────
     WHISPER_DEVICE:       str = "cuda"  # "cpu" | "cuda"
     WHISPER_COMPUTE_TYPE: str = "int8"  # "int8" | "float16" | "float32"
 
-    # ── Claude (LLM 교정) ─────────────────────────────────────────
-    ANTHROPIC_API_KEY:  str
-    CLAUDE_HAIKU_MODEL: str   = "claude-haiku-4-5-20251001"
-    LLM_TIMEOUT_SECONDS: float = 15.0
-
-    # ── Consul (점수 정책) ────────────────────────────────────────
-    CONSUL_URL:   str = "http://consul:8500"
-    CONSUL_TOKEN: str = ""               # ACL 미사용 시 빈 문자열
-
     # ── Spring Boot 웹훅 ──────────────────────────────────────────
-    SPRING_WEBHOOK_URL: str
-    FEEDBACK_SPRING_WEBHOOK_URL: str
+    SPRING_WEBHOOK_URL: str =  "http://spring-server:8080/internal/v1/answers/stt/callback"
+    FEEDBACK_SPRING_WEBHOOK_URL: str = "http://spring-server:8080/internal/v1/feedbacks/callback"
     
     OPENAI_API_KEY:  str
 

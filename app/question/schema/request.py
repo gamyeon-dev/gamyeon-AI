@@ -11,7 +11,7 @@ class FileEntry(BaseModel):
 
 
 class QuestionGenerateRequest(BaseModel):
-      model_config = ConfigDict(
+    model_config = ConfigDict(
         alias_generator=to_camel,
         populate_by_name=True, # Spring이 보낸 camelCase를 받아들임
     )

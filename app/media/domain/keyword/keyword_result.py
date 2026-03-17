@@ -1,7 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
 
-from .value_objects import KeywordCandidate
+from .keyword_candidate import KeywordCandidate
 
 @dataclass(frozen=True)
 class KeywordResult:

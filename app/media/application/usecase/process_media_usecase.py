@@ -2,7 +2,12 @@ from __future__ import annotations
 
 import logging
 
-from core.exceptions import STTTranscriptionError
+from core.exceptions import (
+    STTTranscriptionError,
+    MediaDownloadError,
+    MediaValidationError,
+    AudioExtractionError,
+)
 
 from media.application.service          import MediaService, ProcessMediaCommand
 from media.application.port             import ResultWebhookPort, MediaEventPort
@@ -48,7 +53,11 @@ class ProcessMediaUseCase:
         1. ResultWebhookPort.send_success() → Spring Boot
         2. MediaEventPort.publish_completed() → feedback 도메인
 
-        STT 실패 (FAILED):
+        전처리 실패 (MEDIA_PREPROCESSING_FAILED):
+        1. ResultWebhookPort.send_failed() → Spring Boot
+        2. 이벤트 미발행
+
+        STT 실패 (STT_TRANSCRIPTION_FAILED):
         1. ResultWebhookPort.send_failed() → Spring Boot
         2. 이벤트 미발행
 
@@ -63,6 +72,19 @@ class ProcessMediaUseCase:
             logger.info(
                 "파이프라인 완료 interview_id=%s question_id=%s degraded=%s",
                 command.interview_id, command.question_id, result.degraded,
+            )
+
+        except (MediaDownloadError, MediaValidationError, AudioExtractionError) as e:
+            logger.error(
+                "영상 전처리 실패 FAILED 처리 "
+                "interview_id=%s question_id=%s error=%s",
+                command.interview_id, command.question_id, e,
+            )
+            await self._webhook.send_failed(
+                interview_id=command.interview_id,
+                question_id= command.question_id,
+                error_code=  "MEDIA_PREPROCESSING_FAILED",
+                message=     str(e),
             )
 
         except STTTranscriptionError as e:

@@ -34,7 +34,7 @@ class InMemoryGazeBuffer(GazeBufferPort):
     """
 
     def __init__(self) -> None:
-        self._buffer: dict[str, list[GazeSegment]] = defaultdict(list)
+        self._buffer: dict[int, list[GazeSegment]] = defaultdict(list)
         self._lock = asyncio.Lock()
 
     async def push(self, segment: GazeSegment) -> None:

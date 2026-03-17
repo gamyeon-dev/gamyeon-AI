@@ -4,8 +4,8 @@ import logging
 
 from core.events import bus, signals
 
-from media.application.port.media_event_port import MediaEventPort
-from media.domain.pipeline.aggregate         import MediaProcessingResult
+from media.application.port.media_event_port        import MediaEventPort
+from media.domain.pipeline.media_processing_result  import MediaProcessingResult
 
 logger = logging.getLogger(__name__)
 
