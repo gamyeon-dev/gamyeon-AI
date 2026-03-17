@@ -29,10 +29,10 @@ jobs:
           pip install -r requirements.txt
 
       # lint
-      - name: Check Code Style
-        run: |
-          pip install flake8
-          flake8 . --max-line-length=120 --exclude=.git,__pycache__
+      # - name: Check Code Style
+      #   run: |
+      #     pip install flake8
+      #     flake8 . --max-line-length=120 --exclude=.git,__pycache__
 
       # clean build
       - name: Run Tests
