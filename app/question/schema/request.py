@@ -15,15 +15,15 @@ class QuestionGenerateRequest(BaseModel):
         alias_generator=to_camel,
         populate_by_name=True, # Spring이 보낸 camelCase를 받아들임
     )
-    intvId:      int
-    files:       list[FileEntry]
-    callback: str
+    intvId: int
+    files: list[FileEntry]
+    callbackUrl: str
     resume_url: str
     portfolio_url: str | None = None
     self_introduction_url: str | None = None
     job_role: str
 
-def get_file_key(self, file_type: str) -> str | None:
+    def get_file_key(self, file_type: str) -> str | None:
         for f in self.files:
             if f.fileType == file_type:
                 return f.fileKey
