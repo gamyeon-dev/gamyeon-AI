@@ -1,9 +1,13 @@
 from __future__ import annotations
 
+import logging
+
 from app.media.domain import (
     GazeSegment, GazeResult, GazeSummary,
 )
 from app.media.domain._shared.normalizer import r2, r3
+
+logger = logging.getLogger(__name__)
 
 
 class GazeAggregator:
@@ -26,6 +30,7 @@ class GazeAggregator:
             GazeResult (세그먼트 없으면 is_empty=True)
         """
         if not segments:
+            logger.warning("Gaze 세그먼트 없음 — Degraded GazeResult 반환")
             return self._empty_result()
 
         # 세그먼트 커버리지
@@ -58,6 +63,13 @@ class GazeAggregator:
         )
 
         gaze_score = self._calculate_gaze_score(summary)
+
+        logger.info(
+            "Gaze 집계 완료 segments=%d gaze_score=%d coverage=%.3f"
+            " avg_concentration=%.3f away_count=%d away_total_ms=%d",
+            len(segments), gaze_score, coverage,
+            avg_concentration, away_count, away_total_ms,
+        )
 
         return GazeResult(
             gaze_score=gaze_score,
