@@ -30,7 +30,7 @@ class GazeAggregator:
 
         # 세그먼트 커버리지
         expected = max(1, answer_duration_ms // 10_000)
-        coverage = r3(len(segments) / expected)
+        coverage = r3(min(1.0, len(segments) / expected))
 
         # 가중 평균 집중도 (세그먼트 길이 동일 → 단순 평균)
         avg_concentration = r3(
