@@ -29,8 +29,6 @@ from media.interface.schema import (
 logger    = logging.getLogger(__name__)
 router    = APIRouter(prefix="/internal/v1", tags=["media"])
 _mapper   = MediaMapper()
-_use_case = ProcessMediaUseCase()
-
 
 @router.post(
     # "/process",
