@@ -16,7 +16,6 @@ STT 파이프라인 로컬 테스트 스크립트
   AWS_SECRET_ACCESS_KEY
   AWS_DEFAULT_REGION   (또는 AWS_REGION)
   S3_BUCKET            S3 버킷 이름
-  ANTHROPIC_API_KEY    Claude API 키
 
 실행 방법 (app/ 디렉토리에서):
   cd /path/to/gamyeon-AI/app
