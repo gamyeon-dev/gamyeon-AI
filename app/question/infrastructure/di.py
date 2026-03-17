@@ -15,17 +15,17 @@ from app.question.infrastructure.structuring_prompt_provider import StructuringP
 from app.question.infrastructure.question_gen_prompt_provider import QuestionGenPromptProvider
 from app.question.application.service import QuestionService
 from app.core.webhook.webhook_sender import WebhookSender
-
+from app.question.infrastructure.s3_download_adapter import S3DownloadAdapter
 
 def get_question_service() -> QuestionService:
     return QuestionService(
-        s3_download_port=  _get_s3_download_port(),
+        s3_download_port=  get_s3_download_port(),
         pdf_extract_port=  PyMuPDFAdapter(),
         structuring_port=  _get_structuring_port(),
         question_gen_port= _get_question_gen_port(),
         callback_port=     _get_callback_port(),
     )
-from app.question.infrastructure.s3_download_adapter import S3DownloadAdapter
+
 
 def get_s3_download_port() -> S3DownloadPort:
     #return LocalFileAdapter()
