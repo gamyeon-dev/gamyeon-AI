@@ -8,7 +8,7 @@ Agent Server → Spring Boot Webhook 전송 페이로드 스키마
 from __future__ import annotations
 
 from typing import Literal
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 # 하위 Payload
 class WordTimestampPayload(BaseModel):
@@ -49,8 +49,8 @@ class WebhookSuccessPayload(BaseModel):
     STT + Keywords 처리 완료 Webhook 페이로드
     Spring Boot가 수신 후 DB 저장 + 프론트 전송 담당
     """
-    interview_id: int
-    question_id:  int
+    interview_id: int = Field(..., alias="interviewId")
+    question_id:  int = Field(..., alias="questionId")
     status:       Literal["DONE"] = "DONE"
     degraded:     bool
     transcript:   TranscriptPayload
@@ -62,8 +62,8 @@ class WebhookFailedPayload(BaseModel):
     파이프라인 FAILED 페이로드
     STT 실패 등 복구 불가 오류 시 전송
     """
-    interview_id: int
-    question_id:  int
+    interview_id: int = Field(..., alias="interviewId")
+    question_id:  int = Field(..., alias="questionId")
     status:       Literal["FAILED"] = "FAILED"
     degraded:     bool = False
     errorCode:    str
