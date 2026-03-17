@@ -1,28 +1,22 @@
-from fastapi import APIRouter
+# app/question/router.py
+from fastapi import APIRouter, BackgroundTasks, Depends
+from app.question.schema.response import ApiResponse  # ← 실제 위치에 맞게 import 수정
 from app.question.schema.request import QuestionGenerateRequest
-from app.question.schema.response import QuestionGenerateResponse
-from app.question.infrastructure.di import (
-    get_s3_download_port,
-    get_pdf_extract_port,
-    get_structuring_port,
-    get_question_gen_port,
-)
-from app.question.application.service import QuestionService
+from app.question.infrastructure.di import get_question_service
 
 router = APIRouter(prefix="/internal/v1/questions", tags=["question"])
 
-@router.post("/generate", response_model=QuestionGenerateResponse)
-async def generate_question(request: QuestionGenerateRequest):
-    service = QuestionService(
-        s3_download_port=get_s3_download_port(),
-        pdf_extract_port=get_pdf_extract_port(),
-        structuring_port=get_structuring_port(),
-        question_gen_port=get_question_gen_port(),
+
+@router.post("/generate", status_code=202, response_model=ApiResponse[None])
+async def generate_questions(
+    request:          QuestionGenerateRequest,
+    background_tasks: BackgroundTasks,
+    service=          Depends(get_question_service),
+) -> ApiResponse[None]:
+    background_tasks.add_task(service.run, request)
+    return ApiResponse[None](
+        success=True,
+        code="S000",
+        message="success",
+        data=None,
     )
-    questions = await service.parse_and_generate(
-        resume_url=request.resume_url,
-        job_role=request.job_role,
-        portfolio_url=request.portfolio_url,
-        self_introduction_url=request.self_introduction_url,
-    )
-    return QuestionGenerateResponse(questions=questions)
