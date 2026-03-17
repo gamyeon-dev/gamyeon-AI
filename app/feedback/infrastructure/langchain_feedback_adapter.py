@@ -76,7 +76,7 @@ class LangchainFeedbackAdapter(FeedbackPort):
     )
     async def _invoke_with_retry(self, request: FeedbackRequest) -> FeedbackOutput:
         return await self._chain.ainvoke({
-            "question_text":        request.question_text,
+            "question_content":        request.question_content,
             "corrected_transcript": request.corrected_transcript,
         })
 

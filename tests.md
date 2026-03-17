@@ -36,7 +36,7 @@ PS C:\Users\user\Documents\GitHub\gamyeon-AI> uv run python callback_receiver.py
 ```
 {
   "intv_question_id": 101,
-  "question_text": "본인의 강점에 대해 설명해주세요.",
+  "question_content": "본인의 강점에 대해 설명해주세요.",
   "corrected_transcript": "제 강점은 문제 해결 능력입니다. 프로젝트 진행 시 협업을 통해 효율적인 결과를 만들어냅니다.",
   "degraded": false,
   "reliability_score": 95,

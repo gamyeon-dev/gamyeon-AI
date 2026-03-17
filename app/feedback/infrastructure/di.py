@@ -1,20 +1,21 @@
-from pathlib import Path
 from langchain_openai import ChatOpenAI
-from app.feedback.application.service import FeedbackService
+
+from app.core.webhook.webhook_sender import WebhookSender
 from app.feedback.infrastructure.langchain_feedback_adapter import LangchainFeedbackAdapter
 from app.feedback.infrastructure.prompt_provider import FeedbackPromptProvider
+from app.feedback.infrastructure.webhook_callback_adapter import FeedbackWebhookCallbackAdapter
+from app.feedback.application.service import FeedbackService
 
 
 def _get_llm() -> ChatOpenAI:
-    return ChatOpenAI(
-        model="gpt-4o-mini",
-        temperature=0.0,
-        #api_key="invalid-key-for-test",
-        #infrastructure/di.py 임시 수정
-    )
-    
+    return ChatOpenAI(model="gpt-4o-mini", temperature=0.0)
+
+
 def get_feedback_service() -> FeedbackService:
-    llm             = _get_llm()
-    prompt_provider = FeedbackPromptProvider(version="v1")   # 버전 교체는 이 한 줄
-    adapter         = LangchainFeedbackAdapter(llm=llm, prompt_provider=prompt_provider)
-    return FeedbackService(feedback_port=adapter)
+    port = LangchainFeedbackAdapter(          # ← FeedbackAdapter → LangchainFeedbackAdapter
+        llm=_get_llm(),
+        prompt_provider=FeedbackPromptProvider(),
+    )
+    sender = WebhookSender()
+    callback = FeedbackWebhookCallbackAdapter(sender)
+    return FeedbackService(feedback_port=port, callback=callback)

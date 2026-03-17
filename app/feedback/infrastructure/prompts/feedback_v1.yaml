@@ -36,5 +36,5 @@ system_prompt: |
   {format_instructions}
 
 human_prompt: |
-  [질문]: {question_text}
+  [질문]: {question_content}
   [답변]: {corrected_transcript}
