@@ -24,6 +24,13 @@ PS C:\Users\user\Documents\GitHub\gamyeon-AI> uv run python callback_receiver.py
   "self_introduction_url": null,
   "job_role": "백엔드 개발자"
 }
+
+{
+  "resume_url": "https://gamyeon-s3-bucket.s3.ap-northeast-2.amazonaws.com/resume.pdf",
+  "portfolio_url": null,
+  "self_introduction_url": null,
+  "job_role": "백엔드 개발자"
+}
 ```
 # feedback - test
 ```

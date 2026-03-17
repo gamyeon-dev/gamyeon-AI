@@ -4,7 +4,7 @@ from app.question.schema.response import ApiResponse  # ← 실제 위치에 맞
 from app.question.schema.request import QuestionGenerateRequest
 from app.question.infrastructure.di import get_question_service
 
-router = APIRouter(prefix="/internal/v1/questions")
+router = APIRouter(prefix="/internal/v1/questions", tags=["question"])
 
 
 @router.post("/generate", status_code=202, response_model=ApiResponse[None])

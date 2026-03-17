@@ -25,13 +25,11 @@ def get_question_service() -> QuestionService:
         question_gen_port= _get_question_gen_port(),
         callback_port=     _get_callback_port(),
     )
+from app.question.infrastructure.s3_download_adapter import S3DownloadAdapter
 
-
-def _get_s3_download_port() -> S3DownloadPort:
-    return LocalFileAdapter()
-    # ↓ AWS 키 수령 후 교체
-    # from app.question.infrastructure.s3_download_adapter import S3DownloadAdapter
-    # return S3DownloadAdapter()
+def get_s3_download_port() -> S3DownloadPort:
+    #return LocalFileAdapter()
+    return S3DownloadAdapter(timeout=60.0) # PDF가 클 수 있으므로 60초 넉넉히 설정
 
 
 def _get_structuring_port() -> StructuringPort:

@@ -1,0 +1,73 @@
+{
+  "version": "v1",
+  "data": [
+    {
+      "input": "레디스로 캐싱처리를 하고 도커로 컨테이너 환경을 구성했습니다.",
+      "phonetic_corrected": "레디스로 캐싱처리를 하고 도커로 컨테이너 환경을 구성했습니다.",
+      "output": "Redis로 캐싱처리를 하고 Docker로 컨테이너 환경을 구성했습니다.",
+      "corrections": [
+        {
+          "original": "레디스",
+          "corrected": "Redis",
+          "position": 0,
+          "confidence": 0.96,
+          "type": "term"
+        },
+        {
+          "original": "도커",
+          "corrected": "Docker",
+          "position": 16,
+          "confidence": 0.95,
+          "type": "term"
+        }
+      ]
+    },
+    {
+      "input": "데이터네이스에 인덱싱을 추가해서 성능을 개선했습니다.",
+      "phonetic_corrected": "데이터베이스에 인덱싱을 추가해서 성능을 개선했습니다.",
+      "output": "데이터베이스에 인덱싱을 추가해서 성능을 개선했습니다.",
+      "corrections": [
+        {
+          "original": "데이터네이스",
+          "corrected": "데이터베이스",
+          "position": 0,
+          "confidence": 0.97,
+          "type": "phonetic"
+        }
+      ]
+    },
+    {
+      "input": "스프링 부트로 레스트 에이피아이를 구현했습니다.",
+      "phonetic_corrected": "스프링 부트로 REST API를 구현했습니다.",
+      "output": "Spring Boot로 REST API를 구현했습니다.",
+      "corrections": [
+        {
+          "original": "레스트 에이피아이",
+          "corrected": "REST API",
+          "position": 8,
+          "confidence": 0.93,
+          "type": "phonetic"
+        },
+        {
+          "original": "스프링 부트",
+          "corrected": "Spring Boot",
+          "position": 0,
+          "confidence": 0.95,
+          "type": "term"
+        }
+      ]
+    },
+    {
+      "input": "N+1 문제를 QueryDSL 페치조인으로 해결했습니다.",
+      "phonetic_corrected": "N+1 문제를 QueryDSL 페치조인으로 해결했습니다.",
+      "output": "N+1 문제를 QueryDSL 페치조인으로 해결했습니다.",
+      "corrections": []
+    },
+    {
+      "input": "Docker Compose로 로컬 환경을 구성했습니다.",
+      "phonetic_corrected": "Docker Compose로 로컬 환경을 구성했습니다.",
+      "output": "Docker Compose로 로컬 환경을 구성했습니다.",
+      "corrections": []
+    }
+  ]
+}

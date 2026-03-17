@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Literal, Generic, TypeVar, Optional
-from pydantic import BaseModel
-
+from pydantic import BaseModel, ConfigDict
+from pydantic.alias_generators import to_camel
 
 T = TypeVar("T")
 
@@ -17,3 +17,11 @@ class QuestionCallbackPayload(BaseModel):
     status:       Literal["SUCCESS", "FAILED"]
     questions:    list[str]
     errorMessage: str | None = None
+
+class QuestionGenerateResponse(BaseModel):
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True,
+        serialize_by_alias=True, 
+    )  
+    questions: list[str]

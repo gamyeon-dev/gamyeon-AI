@@ -74,6 +74,7 @@ class StaticScoreAdapter:
         return [
             {
                 "intv_question_id": f.intv_question_id,
+                "index": f.index,
                 "question": f.question,
                 "answer_summary": f.answer_summary,
                 "feedback_badges": f.feedback_badges,
