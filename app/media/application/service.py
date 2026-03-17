@@ -13,7 +13,8 @@ from app.media.domain import (
     ScoringConfig, TimeScore, ReliabilityFactors, ReliabilityScore, # Scoring
     MediaProcessingResult, # Pipeline
 )
-from app.media.application.port.stt_port                     import STTPort, TranscriptCorrectionPort
+
+from app.media.application.port                              import STTPort, TranscriptCorrectionPort
 from app.media.application.port.gaze_buffer_port             import GazeBufferPort
 from app.media.application.port.scoring_config_port          import ScoringConfigPort
 from app.media.application.service_helper.keyword_extractor  import KeywordExtractor
