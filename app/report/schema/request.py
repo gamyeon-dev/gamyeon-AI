@@ -3,7 +3,11 @@ from pydantic import BaseModel, model_validator,ConfigDict
 from typing import Optional
 from pydantic.alias_generators import to_camel
 
-class FeedbackStatus(str, Enum):
+class FeedbackStatus(str, Enum): 
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True, 
+    )
     SUCCEED = "SUCCEED"
     FAILED = "FAILED"
 
@@ -12,11 +16,13 @@ class FeedbackItem(BaseModel):
     model_config = ConfigDict(
         alias_generator=to_camel,
         populate_by_name=True, # Spring이 보낸 camelCase를 받아들임
-    )
+    )     
+
     intv_question_id: int
     index: int 
     question: str
     status: FeedbackStatus
+    reliability_score: int
     logic_score: int
     answer_composition_score: int
     answer_summary: str

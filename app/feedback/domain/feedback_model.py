@@ -29,7 +29,8 @@ class QuestionFeedback:
     time_score:                int                 = 0
     answer_duration_ms:        int                 = 0
     keyword_count:             int                 = 0
- # ! reliability
+    reliability_score:        int                 = 0
+
 
     @staticmethod
     def skipped(intv_question_id: int) -> "QuestionFeedback":
@@ -52,6 +53,7 @@ class QuestionFeedback:
         time_score:        int = 0,
         answer_duration_ms:int = 0,
         keyword_count:     int = 0,
+        reliability_score: int = 0,
     ) -> "QuestionFeedback":
         return QuestionFeedback(
             intv_question_id   = intv_question_id,
@@ -60,6 +62,7 @@ class QuestionFeedback:
             feedback_badges    = ["평가 실패"],
             gaze_score         = gaze_score,
             time_score         = time_score,
+            reliability_score  = reliability_score,
             answer_duration_ms = answer_duration_ms,
             keyword_count      = keyword_count,
         )
