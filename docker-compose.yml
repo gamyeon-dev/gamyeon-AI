@@ -7,6 +7,12 @@ services:
       - "8000:8000"
     environment:
       - CONSUL_HOST=consul
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - S3_BUCKET=${S3_BUCKET}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - FEEDBACK_SPRING_WEBHOOK_URL=${FEEDBACK_SPRING_WEBHOOK_URL}
     networks:
       - gamyeon-net
 
