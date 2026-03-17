@@ -10,8 +10,8 @@ class GazeSegmentRequest(BaseModel):
     """
 
     class Meta(BaseModel):
-        interview_id:     int = Field(..., alias="interviewId")
-        question_id:      int = Field(..., alias="questionId")
+        interview_id:     int = Field(..., alias="intvId")
+        question_id:      int = Field(..., alias="questionSetId")
         timestamp:        int = Field(..., description="세그먼트 시작 epoch ms")
         segment_sequence: int = Field(..., alias="segmentSequence", ge=0)
 
@@ -34,19 +34,19 @@ class GazeSegmentRequest(BaseModel):
         roll:  float
 
     class RawFrame(BaseModel):
-        offset_ms:  int   = Field(..., alias="offsetMs")
+        offset_ms:  int
         confidence: float
         gaze:       "GazeSegmentRequest.GazeVector"
         head:       "GazeSegmentRequest.HeadPose"
 
     class Event(BaseModel):
         type:      str = Field(..., description="AWAY_START | AWAY_END")
-        offset_ms: int = Field(..., alias="offsetMs")
+        offset_ms: int
         direction: str
 
     meta:            Meta
-    metrics_summary: MetricsSummary = Field(..., alias="metricsSummary")
-    raw_data:        list[RawFrame]  = Field(..., alias="rawData")
+    metrics_summary: MetricsSummary
+    raw_data:        list[RawFrame]
     events:          list[Event]     = Field(default_factory=list)
 
     model_config = {"populate_by_name": True}

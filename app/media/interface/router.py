@@ -62,7 +62,6 @@ async def process_media(
     )
 
 @router.post(
-    # "/gaze/segment",
     "/gaze-batches",
     status_code = status.HTTP_204_NO_CONTENT,
     summary="Gaze 세그먼트 버퍼 적재",
