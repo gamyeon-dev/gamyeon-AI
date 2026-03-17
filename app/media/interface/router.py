@@ -71,11 +71,19 @@ async def buffer_gaze_segment(
     service: MediaService = Depends(get_media_service),
 ) -> None:
 
+    logger.info(
+        "Gaze 세그먼트 수신 interview_id=%s question_id=%s seq=%d frames=%d",
+        request.meta.interview_id,
+        request.meta.question_id,
+        request.meta.segment_sequence,
+        len(request.raw_data),
+    )
+
     segment = _mapper.to_gaze_segment(request)
     await service.buffer_gaze_segment(segment)
 
-    logger.debug(
-        "Gaze 세그먼트 적재 interview_id=%s question_id=%s seq=%d",
+    logger.info(
+        "Gaze 세그먼트 적재 완료 interview_id=%s question_id=%s seq=%d",
         request.meta.interview_id,
         request.meta.question_id,
         request.meta.segment_sequence,
