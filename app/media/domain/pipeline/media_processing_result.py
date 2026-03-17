@@ -24,10 +24,10 @@ class MediaProcessingResult:
     """
     Media 종합 처리 결과 DTO
     """
-    interview_id: int
-    question_id:  int
-    # question_content: str // 추가되어야 함
-    transcript:   TranscriptState
+    interview_id:     int
+    question_id:      int
+    question_content: str
+    transcript:       TranscriptState
     keywords:     KeywordResult
     gaze:         GazeResult
     time:         TimeScore
@@ -84,6 +84,7 @@ class MediaProcessingResult:
         base = self.to_spring_webhook_payload().model_dump(by_alias=True)
         return {
             **base,
+            "questionContent": self.question_content,
             "gaze": {
                 "gazeScore": self.gaze.gaze_score,
                 "summary": {
