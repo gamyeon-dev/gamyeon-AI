@@ -24,6 +24,9 @@ from media.infrastructure.claude_haiku_adapter         import ClaudeHaikuAdapter
 from media.infrastructure.inmemory_gaze_buffer         import InMemoryGazeBuffer
 from media.infrastructure.consul_scoring_config        import ConsulScoringConfigAdapter
 from media.infrastructure.keyword_extractor_impl       import KeywordExtractorImpl
+from media.application.usecase         import ProcessMediaUseCase
+from media.infrastructure.spring_webhook_adapter import SpringWebhookAdapter
+from media.infrastructure.media_event_adapter    import MediaEventAdapter
 
 # 싱글턴 어댑터 (애플리케이션 생명주기와 동일)
 @lru_cache(maxsize=1)
@@ -38,7 +41,6 @@ def _get_whisper_adapter() -> WhisperSTTAdapter:
         compute_type=settings.WHISPER_COMPUTE_TYPE,
     )
 
-
 @lru_cache(maxsize=1)
 def _get_claude_adapter() -> ClaudeHaikuAdapter:
     return ClaudeHaikuAdapter(
@@ -46,7 +48,6 @@ def _get_claude_adapter() -> ClaudeHaikuAdapter:
         model=settings.CLAUDE_HAIKU_MODEL,
         timeout=settings.LLM_TIMEOUT_SECONDS,
     )
-
 
 @lru_cache(maxsize=1)
 def _get_gaze_buffer() -> InMemoryGazeBuffer:
@@ -56,7 +57,6 @@ def _get_gaze_buffer() -> InMemoryGazeBuffer:
     """
     return InMemoryGazeBuffer()
 
-
 @lru_cache(maxsize=1)
 def _get_consul_adapter() -> ConsulScoringConfigAdapter:
     return ConsulScoringConfigAdapter(
@@ -64,40 +64,54 @@ def _get_consul_adapter() -> ConsulScoringConfigAdapter:
         token=settings.CONSUL_TOKEN,
     )
 
-
 @lru_cache(maxsize=1)
 def _get_keyword_extractor() -> KeywordExtractorImpl:
     """konlpy Okt 싱글턴 (초기 로드 비용 절감)."""
     return KeywordExtractorImpl()
 
-
 @lru_cache(maxsize=1)
 def _get_gaze_aggregator() -> GazeAggregator:
     return GazeAggregator()
 
-# FastAPI Depends 진입점
-def get_media_service(
-    stt_port=         Depends(_get_whisper_adapter),
-    correction_port=  Depends(_get_claude_adapter),
-    gaze_buffer=      Depends(_get_gaze_buffer),
-    scoring_config=   Depends(_get_consul_adapter),
-    keyword_extractor=Depends(_get_keyword_extractor),
-    gaze_aggregator=  Depends(_get_gaze_aggregator),
-) -> MediaService:
-    """
-    MediaService FastAPI 의존성
+@lru_cache(maxsize=1)
+def _get_spring_webhook_adapter() -> SpringWebhookAdapter:
+    return SpringWebhookAdapter()
 
-    router.py 사용 예:
-    @router.post("/internal/media/process")
-    async def process(
-        service: MediaService = Depends(get_media_service),
-    ): ...
-    """
-    return MediaService(
-        stt_port=          stt_port,
-        correction_port=   correction_port,
-        gaze_buffer=       gaze_buffer,
-        scoring_config=    scoring_config,
-        keyword_extractor= keyword_extractor,
-        gaze_aggregator=   gaze_aggregator,
-    )
+@lru_cache(maxsize=1)
+def _get_media_event_adapter() -> MediaEventAdapter:
+    return MediaEventAdapter()
+
+# @lru_cache(maxsize=1)
+# def get_process_media_usecase() -> ProcessMediaUseCase:
+#     return ProcessMediaUseCase(
+#         service=      get_media_service(),
+#         webhook_port= _get_spring_webhook_adapter(),
+#         event_port=   _get_media_event_adapter(),
+#     )
+
+# # FastAPI Depends 진입점
+# def get_media_service(
+#     stt_port=         Depends(_get_whisper_adapter),
+#     correction_port=  Depends(_get_claude_adapter),
+#     gaze_buffer=      Depends(_get_gaze_buffer),
+#     scoring_config=   Depends(_get_consul_adapter),
+#     keyword_extractor=Depends(_get_keyword_extractor),
+#     gaze_aggregator=  Depends(_get_gaze_aggregator),
+# ) -> MediaService:
+#     """
+#     MediaService FastAPI 의존성
+
+#     router.py 사용 예:
+#     @router.post("/internal/media/process")
+#     async def process(
+#         service: MediaService = Depends(get_media_service),
+#     ): ...
+#     """
+#     return MediaService(
+#         stt_port=          stt_port,
+#         correction_port=   correction_port,
+#         gaze_buffer=       gaze_buffer,
+#         scoring_config=    scoring_config,
+#         keyword_extractor= keyword_extractor,
+#         gaze_aggregator=   gaze_aggregator,
+#     )
