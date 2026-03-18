@@ -87,6 +87,7 @@ class MediaProcessingResult:
         base = self.to_spring_webhook_payload().model_dump(by_alias=True)
         return {
             **base,
+            "status": "DONE",
             "questionContent": self.question_content,
             "transcript": {
                 **base["answerText"],
