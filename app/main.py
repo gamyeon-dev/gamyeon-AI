@@ -1,6 +1,9 @@
+import logging
 import os
 import uuid
 from contextlib import asynccontextmanager
+
+logger = logging.getLogger(__name__)
 
 import consul
 from dotenv import load_dotenv
@@ -79,13 +82,21 @@ def health_check():
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    errors = [
+        {"field": " -> ".join(str(loc) for loc in e["loc"]), "message": e["msg"]}
+        for e in exc.errors()
+    ]
+    logger.warning(
+        "422 validation error url=%s errors=%s",
+        request.url.path, errors,
+    )
     return JSONResponse(
         status_code=422,
         content=ApiResponse(
             success=False,
             code="CMMN-V001",
             message="입력값 유효성 검사에 실패했습니다.",
-            data=None,
+            data=errors,
         ).model_dump(),
     )
 
