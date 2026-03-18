@@ -3,6 +3,7 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
+from app.core.logging_config import setup_logging
 from app.core.schema import ApiResponse
 from app.feedback.router import router as feedback_router
 from app.media.interface.router import router as media_router
@@ -10,6 +11,7 @@ from app.question.router import router as question_router
 from app.report.router import router as report_router
 
 load_dotenv()
+setup_logging()
 
 app = FastAPI(
     title="Interview AI Server",
