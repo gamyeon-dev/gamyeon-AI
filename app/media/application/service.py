@@ -152,7 +152,6 @@ class MediaService:
             degraded = (
                 transcript.degraded  # S5 실패
                 or gaze_result.is_empty  # S7 Gaze 미수신
-                or keyword_result.is_empty  # S6 추출 실패
             )
 
             result = MediaProcessingResult(

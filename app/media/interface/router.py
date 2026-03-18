@@ -80,11 +80,16 @@ async def buffer_gaze_segment(
 ) -> None:
 
     logger.info(
-        "Gaze 세그먼트 수신 interview_id=%s question_id=%s seq=%d frames=%d",
+        "Gaze 세그먼트 수신 interview_id=%s question_id=%s seq=%d"
+        " frames=%d avg_concentration=%.3f blink=%d is_away=%s events=%d",
         request.meta.interview_id,
         request.meta.question_id,
         request.meta.segment_sequence,
         len(request.raw_data),
+        request.metrics_summary.average_concentration,
+        request.metrics_summary.blink_count,
+        request.metrics_summary.is_away_detected,
+        len(request.events),
     )
 
     segment = _mapper.to_gaze_segment(request)
