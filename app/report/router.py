@@ -1,4 +1,4 @@
-# app/report/router.py webhook 
+# app/report/router.py webhook
 from fastapi import APIRouter, BackgroundTasks, Depends
 
 from app.report.application.service import ReportService
