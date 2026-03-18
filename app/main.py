@@ -8,9 +8,11 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
-from app.core.logging_config import setup_logging
 from app.core import ConsulHelper
+from app.core.logging_config import setup_logging
 from app.core.schema import ApiResponse
+from app.feedback.infrastructure.di import get_feedback_service
+from app.feedback.infrastructure.event_listener import register_feedback_listeners
 from app.feedback.router import router as feedback_router
 from app.media.interface.router import router as media_router
 from app.question.router import router as question_router
@@ -44,6 +46,11 @@ async def lifespan(app: FastAPI):
         check=consul.Check.http(f"http://{EC2_PUBLIC_IP}:8000/health", interval="10s"),
     )
     print("Consul 등록 완료")
+
+    # ✅ 피드백 이벤트 리스너 등록 (추가되는 유일한 부분)
+    feedback_service = get_feedback_service()
+    register_feedback_listeners(feedback_service)
+    print("✅ 피드백 이벤트 리스너 등록 완료")
 
     yield  # 서버 실행
 
