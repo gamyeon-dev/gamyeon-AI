@@ -5,6 +5,7 @@ from fastapi.responses import JSONResponse
 
 from app.core.schema import ApiResponse
 from app.feedback.router import router as feedback_router
+from app.media.interface.router import router as media_router
 from app.question.router import router as question_router
 from app.report.router import router as report_router
 
@@ -20,6 +21,7 @@ app = FastAPI(
 app.include_router(question_router)
 app.include_router(feedback_router)
 app.include_router(report_router)
+app.include_router(media_router)
 
 
 # ── 헬스체크 ─────────────────────────────────────────────────────
