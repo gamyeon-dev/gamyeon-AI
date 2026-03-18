@@ -17,33 +17,29 @@ class CallbackStatus(str, Enum):
 
 
 class QuestionFeedbackDetail(BaseModel):
-    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
     characteristic: str
     strength: str
     improvement: str
 
 
 class QuestionSummary(BaseModel):
-    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
     index: int
-    question_set_id: int  # → questionSetId
+    question_set_id: int
     question: str
-    answer_summary: str  # → answerSummary
-    feedback_badges: List[str]  # → feedbackBadges
+    answer_summary: str
+    feedback_badges: List[str]
     feedback: QuestionFeedbackDetail
 
 
 class CompetencyScores(BaseModel):
-    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
     logic: int
-    answer_composition: int  # → answerComposition
+    answer_composition: int
     gaze: int
-    time_management: int  # → timeManagement
+    time_management: int
     keyword: int
 
 
 class ReportResponse(BaseModel):
-    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
     total_score: int
     report_accuracy: str
     job_category: Optional[str] = None
