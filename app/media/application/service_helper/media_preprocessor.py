@@ -188,12 +188,16 @@ class MediaPreprocessor:
         """
         ffprobe로 영상 메타데이터 추출
         duration → answer_duration_ms 산출
+
+        브라우저 MediaRecorder WebM은 컨테이너 헤더에 duration이 없을 수 있음.
+        format duration 없으면 streams[0] duration으로 fallback.
         """
         cmd = [
             "ffprobe",
-            "-v",            "quiet",
+            "-v",            "error",
             "-print_format", "json",
             "-show_format",
+            "-show_streams",
             local_path,
         ]
 
@@ -204,8 +208,28 @@ class MediaPreprocessor:
                 capture_output=True,
             )
             data        = json.loads(result.stdout)
-            duration_s  = float(data["format"]["duration"])
             format_name = Path(local_path).suffix.lstrip(".")
+
+            # format duration 우선, 없으면 streams fallback
+            raw_duration = data.get("format", {}).get("duration")
+            if not raw_duration or raw_duration == "N/A":
+                streams = data.get("streams", [])
+                for stream in streams:
+                    stream_dur = stream.get("duration")
+                    if stream_dur and stream_dur != "N/A":
+                        raw_duration = stream_dur
+                        logger.warning(
+                            "format duration 없음 → stream duration 사용 path=%s duration=%s",
+                            local_path, raw_duration,
+                        )
+                        break
+
+            if not raw_duration or raw_duration == "N/A":
+                raise MediaValidationError(
+                    f"영상 duration 추출 불가 (브라우저 WebM 헤더 누락 가능성): {local_path}"
+                )
+
+            duration_s = float(raw_duration)
 
             logger.info(
                 "ffprobe 완료 duration=%.3fs format=%s",
