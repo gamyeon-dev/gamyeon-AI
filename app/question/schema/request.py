@@ -14,14 +14,15 @@ class FileEntry(BaseModel):
 class QuestionGenerateRequest(BaseModel):
     model_config = ConfigDict(
         alias_generator=to_camel,
-        populate_by_name=True,  # Spring이 보낸 camelCase를 받아들임
+        populate_by_name=True,
     )
     intvId: int
     files: list[FileEntry]
-    resume_url: str
-    portfolio_url: str | None = None
-    self_introduction_url: str | None = None
-    job_role: str | None = None
+    # ↓ 아래 필드 전부 삭제 (files[]로 통합되었음)
+    # resume_url: str               ← 삭제
+    # portfolio_url: str | None     ← 삭제
+    # self_introduction_url: str | None ← 삭제
+    # job_role: str | None          ← 삭제
 
     def get_file_key(self, file_type: str) -> str | None:
         for f in self.files:

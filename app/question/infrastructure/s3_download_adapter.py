@@ -1,50 +1,55 @@
-import httpx
 import logging
-from app.question.application.port.s3_download_port import S3DownloadPort
+
+import aioboto3
+from botocore.exceptions import ClientError, NoCredentialsError
+
 from app.core.config import settings
+from app.question.application.port.s3_download_port import S3DownloadPort
 
 logger = logging.getLogger(__name__)
+
 
 class S3DownloadAdapter(S3DownloadPort):
     def __init__(self, timeout: float = 30.0):
         self.timeout = timeout
 
-    async def download(self, url: str) -> bytes:
+    async def download(self, file_key: str) -> bytes:
         """
-        Spring으로부터 받은 Presigned URL을 통해 파일을 다운로드합니다.
+        Spring으로부터 받은 fileKey를 통해 S3에서 직접 파일을 다운로드합니다.
         """
         try:
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
-                logger.info(f"S3 파일 다운로드 시작: {url[:50]}...")
-                
-                response = await client.get(url)
-                
-                # HTTP 에러(403 Forbidden, 404 Not Found 등) 발생 시 예외 발생
-                response.raise_for_status()
-                
-                file_data = response.content
-                logger.info(f"다운로드 완료: {len(file_data)} bytes 수신")
-                
+            logger.info(f"S3 파일 다운로드 시작: {file_key}")
+
+            session = aioboto3.Session(
+                aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+                region_name=settings.AWS_REGION,
+            )
+
+            # Pylance(VSCode)에서 뜨는 빨간줄은 aioboto3의 타입 힌팅 한계입니다.
+            # '# type: ignore'를 붙이면 경고가 사라지며, 실제 런타임에서는 완벽히 작동합니다.
+            async with session.client("s3") as s3_client:  # type: ignore
+                response = await s3_client.get_object(
+                    Bucket=settings.S3_BUCKET, Key=file_key
+                )
+                file_data = await response["Body"].read()
+
+                logger.info(f"S3 다운로드 완료: {len(file_data)} bytes")
                 return file_data
 
-        except httpx.HTTPStatusError as e:
-            # 403(만료/권한), 404(파일없음) 등 서버 응답 에러 처리
-            logger.error(f"S3 다운로드 실패 (상태 코드: {e.response.status_code}): {e}")
-            if e.response.status_code == 403:
-                raise ValueError("S3 URL이 만료되었거나 접근 권한이 없습니다.") from e
-            raise Exception(f"S3 서버 에러 발생: {e.response.status_code}") from e
+        except ClientError as e:
+            logger.error(f"S3 클라이언트 에러: {e}")
+            error_code = e.response["Error"]["Code"]
+            if error_code == "NoSuchKey":
+                raise ValueError(f"S3 파일 없음: {file_key}") from e
+            elif error_code == "AccessDenied":
+                raise ValueError("S3 권한 없음") from e
+            raise Exception(f"S3 에러: {error_code}") from e
 
-        except httpx.RequestError as e:
-            # 네트워크 단절, 타임아웃 등 요청 자체 실패 처리
-            logger.error(f"S3 연결 중 네트워크 에러 발생: {e}")
-            raise Exception("S3 서버에 연결할 수 없습니다. 네트워크 상태를 확인하세요.") from e
+        except NoCredentialsError:
+            logger.error("AWS 자격증명 없음")
+            raise ValueError("AWS 설정 확인") from None
 
         except Exception as e:
-            logger.error(f"알 수 없는 오류 발생: {e}")
-            raise e
-
-    # def _parse_url(self, url: str) -> tuple[str, str]:
-    #     # s3://bucket-name/path/to/file.pdf
-    #     path = url.replace("s3://", "")
-    #     bucket, key = path.split("/", 1)
-    #     return bucket, key
+            logger.error(f"S3 다운로드 실패: {e}")
+            raise Exception(f"S3 처리 실패: {e}") from e

@@ -4,6 +4,8 @@ from datetime import datetime
 
 import httpx
 
+# 피드백용 웹훅 전송 테스트
+
 # ── 전송할 페이로드 (camelCase, Spring 수신 형식) ──────────────────
 PAYLOAD = {
     "intvId": 99,

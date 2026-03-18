@@ -6,6 +6,7 @@ import uvicorn
 from fastapi import FastAPI, Request
 
 app = FastAPI()
+# 스프링 섭를 대신하여 웹훅을 받는 코드, 9000
 
 
 @app.post("/internal/v1/questions/callback")
@@ -24,6 +25,7 @@ async def receive_question_callback(request: Request):
     return {"status": "received"}
 
 
+# 리포트 생성요청 테스트
 @app.post("/internal/v1/reports/callback")
 async def receive_callback(request: Request):
     body = await request.json()
@@ -47,6 +49,18 @@ async def receive_feedback_callback(request: Request):
     print("=" * 60)
     print("현재 시간:", now)
     return {"ok": True}
+
+
+@app.get("/received")  # ← 폴링용 엔드포인트 추가
+async def get_received():
+    return received_data
+
+
+@app.post("/reset")  # ← 초기화용 엔드포인트 추가
+async def reset_received():
+    global received_data
+    received_data = {"received": False, "payload": None}
+    return {"status": "reset"}
 
 
 if __name__ == "__main__":
