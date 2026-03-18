@@ -24,6 +24,12 @@ class FeedbackService:
         try:
             # dict를 Pydantic 모델로 변환 (유효성 검사 포함)
             event_request = FeedbackEventRequest.model_validate(payload)
+            logger.info(
+                "media_completed 이벤트 수신 interview_id=%s question_id=%s",
+                event_request.intv_id,
+                event_request.question_id,
+            )
+
             await self.run(event_request)
         except Exception as e:
             logger.error(f"이벤트 데이터 파싱 실패: {e}")

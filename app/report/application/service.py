@@ -1,5 +1,6 @@
 import json
 
+from app.core.config import settings
 from app.report.application.port.callback_port import CallbackPort
 from app.report.application.port.report_generator_port import ReportGeneratorPort
 from app.report.domain.report_model import ReportResult
@@ -71,9 +72,9 @@ class ReportService:
 
         # 🚀 [중요] try-except 문 밖으로 완전히 빼내야 성공/실패 모두 전송됩니다!
         if payload_obj is not None:
-            print(f"📤 콜백 전송 시도 중... URL: {request.callback}")
+            print(f"📤 콜백 전송 시도 중... URL: {settings.REPORT_SPRING_WEBHOOK_URL}")
 
             await self.callback_port.send(
-                url=request.callback,
+                url=settings.REPORT_SPRING_WEBHOOK_URL,
                 payload=payload_obj,  # Adapter에서 model_dump(by_alias=True)가 실행됨
             )

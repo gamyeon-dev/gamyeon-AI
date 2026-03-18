@@ -6,6 +6,7 @@ from app.core.events import bus, signals
 from app.feedback.infrastructure.di import get_feedback_service
 from app.feedback.infrastructure.event_listener import register_feedback_listeners
 
+# 피드백과 리포트 메시지 송수신 테스트
 logging.basicConfig(level=logging.INFO)
 
 # ── 테스트 페이로드 (media/ 가 실제로 emit 하는 구조) ──────────────

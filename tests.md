@@ -1,12 +1,17 @@
 uv run uvicorn app.main:app --reload --port 8000
-uv run callback_receiver.py
+
+uv run python callback_receiver.py
+
 들여쓰기 확인 !! 
-# webhook 
+# webhook 받는 애 
 PS C:\Users\user\Documents\GitHub\gamyeon-AI> uv run python callback_receiver.py
-### report webhook 
-(gamyeon-ai) PS C:\Users\user\Documents\GitHub\gamyeon-AI> curl.exe -X POST "http://localhost:8000/internal/v1/reports/generate" `
->>   -H "Content-Type: application/json; charset=utf-8" `
->>   -d "@request.json"   
+
+
+### report 리포트 생성요청 test
+(gamyeon-ai) PS C:\Users\user\Documents\GitHub\gamyeon-AI> 
+curl.exe -X POST "http://localhost:8000/internal/v1/reports/generate" `
+-H "Content-Type: application/json; charset=utf-8" `
+-d "@request.json"   
 
 # Event 
 (gamyeon-ai) PS C:\Users\user\Documents\GitHub\gamyeon-AI> uv run python test_event_integration.py
@@ -21,7 +26,6 @@ PS C:\Users\user\Documents\GitHub\gamyeon-AI> uv run python callback_receiver.py
       "fileKey": "sample/resume.pdf"
     }
   ],
-  "callback": "http://127.0.0.1:9000/internal/v1/questions/callback"
 }
 
 ```
@@ -68,6 +72,7 @@ PS C:\Users\user\Documents\GitHub\gamyeon-AI> uv run python callback_receiver.py
 ```
 
 ## report webhook 
+## 리포트 생성 테스트 
 ```
 # 터미널 1 — 수신 서버 실행
 python tests/webhook_receiver.py
