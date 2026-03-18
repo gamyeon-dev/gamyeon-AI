@@ -6,7 +6,7 @@ import httpx
 
 # ── 전송할 페이로드 (camelCase, Spring 수신 형식) ──────────────────
 PAYLOAD = {
-    "interviewId": 99,
+    "intvId": 99,
     "questionId": 5,
     "status": "SUCCEED",
     "logicScore": 85,
@@ -21,7 +21,7 @@ PAYLOAD = {
     "timeScore": 91,
     "answerDurationMs": 54500,
     "keywordCount": 2,
-    "reliabilityScore": 88,
+    "reliability": 88,
 }
 
 # ── Webhook 전송 대상 (callback_receiver.py) ──────────────────────
