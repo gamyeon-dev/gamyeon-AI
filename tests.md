@@ -1,6 +1,13 @@
-
+uv run uvicorn app.main:app --reload --port 8000
+uv run callback_receiver.py
+들여쓰기 확인 !! 
 # webhook 
 PS C:\Users\user\Documents\GitHub\gamyeon-AI> uv run python callback_receiver.py
+### report webhook 
+(gamyeon-ai) PS C:\Users\user\Documents\GitHub\gamyeon-AI> curl.exe -X POST "http://localhost:8000/internal/v1/reports/generate" `
+>>   -H "Content-Type: application/json; charset=utf-8" `
+>>   -d "@request.json"   
+
 
 # question - test 
 ```
@@ -56,4 +63,24 @@ PS C:\Users\user\Documents\GitHub\gamyeon-AI> uv run python callback_receiver.py
     }
   ]
 }
+```
+
+## report webhook 
+```
+# 터미널 1 — 수신 서버 실행
+python tests/webhook_receiver.py
+
+# 터미널 2 — AI 서버 실행
+uvicorn app.main:app --reload --port 8000
+
+# 터미널 3 — 리포트 생성 요청
+curl -X POST http://localhost:8000/internal/v1/reports/generate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "intvId": 11,
+    "userId": 3,
+    "callback": "http://localhost:8080/internal/v1/reports/callback",
+    "feedbacks": [...]
+  }'
+
 ```

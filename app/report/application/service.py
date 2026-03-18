@@ -1,81 +1,79 @@
-from datetime import datetime, timezone
+import json
 
-from app.report.domain.report_model import (
-    CompetencyScores, QuestionFeedbackDetail, QuestionSummary, ReportResult
-)
-from app.report.infrastructure.static_score_adapter import StaticScoreAdapter
-from app.report.schema.request import FeedbackStatus, ReportRequest
+from app.report.application.port.callback_port import CallbackPort
+from app.report.application.port.report_generator_port import ReportGeneratorPort
+from app.report.domain.report_model import ReportResult
+from app.report.schema.request import FeedbackStatus, ReportGenerateRequest
+from app.report.schema.response import ReportCallbackPayload
 
 
 class ReportService:
-
-    def __init__(self, adapter: StaticScoreAdapter):
+    # 1. 생성자에서 callback_port를 추가로 받도록 수정
+    def __init__(
+        self,
+        adapter: ReportGeneratorPort,  # 구체 클래스(StaticScoreAdapter) 대신 Port
+        callback_port: CallbackPort,
+    ):
         self.adapter = adapter
+        self.callback_port = callback_port
 
-    def execute(self, request: ReportRequest) -> ReportResult:
-        # 1. COMPLETED 항목만 필터링
-        completed = [f for f in request.feedbacks if f.status == FeedbackStatus.COMPLETED]
+    def execute(self, request: ReportGenerateRequest) -> ReportResult:
+        # 1. SUCCEED 항목만 필터링
+        completed = [f for f in request.feedbacks if f.status == FeedbackStatus.SUCCEED]
         success_count = len(completed)
 
         # 2. 성공 개수 검증 (2개 이하 → 호출부에서 422 처리)
         if success_count <= 2:
-            raise ValueError(f"리포트 생성 불가: 성공한 피드백이 {success_count}개입니다.")
-
-        # 3. 역량 점수 산정
-        logic           = self.adapter.calc_logic(completed)
-        answer_comp     = self.adapter.calc_answer_composition(completed)
-        gaze            = self.adapter.calc_gaze(completed)
-        time_management = self.adapter.calc_time_management(completed)
-        keyword         = self.adapter.calc_keyword(completed)
-
-        # 4. 총점 산정
-        total_score = self.adapter.calc_total_score(
-            logic, answer_comp, gaze, time_management, keyword
-        )
-
-        # 5. 리포트 정확도 산정
-        avg_score = sum(f.logic_score + f.answer_composition_score for f in completed) / (success_count * 2)
-        report_accuracy = self.adapter.calc_accuracy(success_count, avg_score)
-
-        # 6. 강점 / 약점 추출
-        strengths  = self.adapter.extract_strengths(completed)
-        weaknesses = self.adapter.extract_weaknesses(completed)
-
-        # 7. 문항별 요약 빌드
-        raw_summaries = self.adapter.build_question_summaries(completed)
-        question_summaries = [
-            QuestionSummary(
-                intv_question_id=s["intv_question_id"],
-                question=s["question"],
-                index=s["index"],
-                answer_summary=s["answer_summary"],
-                keywords=s["keywords"],
-                feedback=QuestionFeedbackDetail(
-                    characteristic=s["feedback"]["characteristic"],
-                    strength=s["feedback"]["strength"],
-                    improvement=s["feedback"]["improvement"],
-                ),
+            raise ValueError(
+                f"리포트 생성 불가: 성공한 피드백이 {success_count}개입니다."
             )
-            for s in raw_summaries
-        ]
 
-        # 8. ReportResult 조립
-        return ReportResult(
-            interview_id=request.interview_id,
-            job_category=request.meta.job_category,
-            answered_count=success_count,
-            avg_answer_duration_ms=self.adapter.calc_avg_duration_ms(completed),
-            created_at=datetime.now(timezone.utc),
-            report_accuracy=report_accuracy,
-            competency_scores=CompetencyScores(
-                logic=logic,
-                answer_composition=answer_comp,
-                gaze=gaze,
-                time_management=time_management,
-                keyword=keyword,
-            ),
-            total_score=total_score,
-            strengths=strengths,
-            weaknesses=weaknesses,
-            question_summaries=question_summaries,
+        # 단일 generate() 호출로 전체 리포트 생성
+        result = self.adapter.generate(
+            feedbacks=completed,
+            intv_id=request.intv_id,
         )
+        return result
+
+    # ── 웹훅 전송 포함 실행 (BackgroundTasks 진입점) ─────────
+    async def execute_and_callback(self, request: ReportGenerateRequest) -> None:
+        # 1. 초기값 설정 (변수명 통일: payload_obj)
+        payload_obj = ReportCallbackPayload.failed(
+            intv_id=request.intv_id,
+            user_id=request.user_id,
+            error_message="알 수 없는 시스템 에러가 발생했습니다.",
+        )
+
+        try:
+            result = self.execute(request)
+
+            payload_obj = ReportCallbackPayload.from_result(
+                intv_id=request.intv_id,
+                user_id=request.user_id,
+                result=result,
+            )
+
+            print(f"✅ 리포트 생성 성공! (intvId: {request.intv_id})")
+
+            # 🔍 로그 출력 시 by_alias=True를 넣어야 카멜케이스가 보입니다!
+            final_json = payload_obj.model_dump(mode="json", by_alias=True)
+            print("📋 [전송 데이터 요약]:")
+            print(json.dumps(final_json, indent=2, ensure_ascii=False))
+
+        except Exception as e:
+            print(f"❌ 리포트 생성 중 에러 발생: {str(e)}")
+
+            payload_obj = ReportCallbackPayload.failed(
+                intv_id=request.intv_id,
+                user_id=request.user_id,
+                error_message=str(e),
+            )
+
+        # 🚀 [중요] try-except 문 밖으로 완전히 빼내야 성공/실패 모두 전송됩니다!
+        if payload_obj is not None:
+            print(f"📤 콜백 전송 시도 중... URL: {request.callback}")
+
+            await self.callback_port.send(
+                url=request.callback,
+                payload=payload_obj,  # Adapter에서 model_dump(by_alias=True)가 실행됨
+            )

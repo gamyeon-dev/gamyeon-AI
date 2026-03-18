@@ -178,6 +178,7 @@ class WebhookSender:
                     "failed_at":    datetime.now(timezone.utc).isoformat(),
                 },
                 ensure_ascii=False,
+                default=str #모르는 데이터 타입이 나오면 일단 문자열로 강제 변환
             )
         )
 

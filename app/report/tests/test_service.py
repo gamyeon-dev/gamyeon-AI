@@ -8,13 +8,13 @@ service = ReportService(adapter=StaticScoreAdapter())
 
 def make_request(feedbacks: list[FeedbackItem]) -> ReportRequest:
     return ReportRequest(
-        interview_id= 5,
+        intv_id= 5,
         meta=InterviewMeta(job_category="백엔드", answered_count=len(feedbacks)),
         feedbacks=feedbacks,
     )
 
 
-def make_feedback(intv_question_id: int, status=FeedbackStatus.COMPLETED, **kwargs) -> FeedbackItem:
+def make_feedback(intv_question_id: int, status=FeedbackStatus.SUCCEED, **kwargs) -> FeedbackItem:
     defaults = {
         "intv_question_id": intv_question_id,
         "question": "질문",
