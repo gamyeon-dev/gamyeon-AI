@@ -7,7 +7,7 @@ class Settings(BaseSettings):
         env_file=".env", env_file_encoding="utf-8", extra="ignore"
     )
 
-    S3_BASE_URL: str = "https://s3.ap-northeast-2.amazonaws.com/your-bucket-name/"
+    S3_BASE_URL: str = "https://s3.ap-northeast-2.amazonaws.com/your-bucket-name"
 
     # ── AWS / S3 ──────────────────────────────────────────────────
     AWS_ACCESS_KEY_ID: str = ""
