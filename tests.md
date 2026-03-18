@@ -8,7 +8,9 @@ PS C:\Users\user\Documents\GitHub\gamyeon-AI> uv run python callback_receiver.py
 >>   -H "Content-Type: application/json; charset=utf-8" `
 >>   -d "@request.json"   
 
-
+# Event 
+(gamyeon-ai) PS C:\Users\user\Documents\GitHub\gamyeon-AI> uv run python test_event_integration.py
+(gamyeon-ai) PS C:\Users\user\Documents\GitHub\gamyeon-AI> uv run python callback_receiver.pyPS C:\Users\user\Documents\GitHub\gamyeon-AI> uv run uvicorn app.main:app --reload --port 8000
 # question - test 
 ```
 {

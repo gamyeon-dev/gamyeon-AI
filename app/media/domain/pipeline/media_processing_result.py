@@ -1,62 +1,64 @@
 from __future__ import annotations
+
 from dataclasses import dataclass
 
-from app.media.interface.schema.webhook import (
-    WebhookSuccessPayload,
-    WebhookFailedPayload,
-    TranscriptPayload,
-    CorrectionPayload,
-    WordTimestampPayload,
-    KeywordsPayload,
-    KeywordCandidatePayload,
-)
-
 from app.media.domain import (
-    TranscriptState,
     GazeResult,
     KeywordResult,
-    TimeScore, 
-    ReliabilityScore
+    TimeScore,
+    TranscriptState,
+    reliability,
 )
+from app.media.interface.schema.webhook import (
+    CorrectionPayload,
+    KeywordCandidatePayload,
+    KeywordsPayload,
+    TranscriptPayload,
+    WebhookFailedPayload,
+    WebhookSuccessPayload,
+    WordTimestampPayload,
+)
+
 
 @dataclass(frozen=True)
 class MediaProcessingResult:
     """
     Media 종합 처리 결과 DTO
     """
-    interview_id:     int
-    question_id:      int
+
+    interview_id: int
+    question_id: int
     question_content: str
-    transcript:       TranscriptState
-    keywords:     KeywordResult
-    gaze:         GazeResult
-    time:         TimeScore
-    reliability:  ReliabilityScore
-    degraded:     bool
-    
+    transcript: TranscriptState
+    keywords: KeywordResult
+    gaze: GazeResult
+    time: TimeScore
+    reliability: reliability
+    degraded: bool
+
     def to_spring_webhook_payload(self) -> WebhookSuccessPayload:
         return WebhookSuccessPayload(
-            interviewId=self.interview_id,
-            questionId= self.question_id,
-            degraded=   self.degraded,
-            transcript= TranscriptPayload(
-                rawTranscript=      self.transcript.raw_transcript,
+            intvId=self.interview_id,
+            questionId=self.question_id,
+            degraded=self.degraded,
+            transcript=TranscriptPayload(
+                rawTranscript=self.transcript.raw_transcript,
                 correctedTranscript=self.transcript.corrected_transcript,
                 corrections=[
                     CorrectionPayload(
-                        original=  c.original,
-                        corrected= c.corrected,
-                        position=  c.position,
+                        original=c.original,
+                        corrected=c.corrected,
+                        position=c.position,
                         confidence=c.confidence,
-                        type=      c.type.value,
+                        type=c.type.value,
                     )
                     for c in self.transcript.corrections
                 ],
                 wordTimestamps=[
                     WordTimestampPayload(
-                        word=       wt.word,
-                        start=      wt.start,
-                        end=        wt.end,
+                        word=wt.word,
+                        start=wt.start,
+                        end=wt.end,
                         probability=wt.probability,
                     )
                     for wt in self.transcript.word_timestamps
@@ -65,8 +67,8 @@ class MediaProcessingResult:
             keywords=KeywordsPayload(
                 candidates=[
                     KeywordCandidatePayload(
-                        term=    k.term,
-                        count=   k.count,
+                        term=k.term,
+                        count=k.count,
                         category=k.category,
                     )
                     for k in self.keywords.candidates
@@ -89,40 +91,40 @@ class MediaProcessingResult:
                 "gazeScore": self.gaze.gaze_score,
                 "summary": {
                     "avgConcentration": self.gaze.summary.avg_concentration,
-                    "awayCount":        self.gaze.summary.away_count,
-                    "awayTotalMs":      self.gaze.summary.away_total_ms,
-                    "segmentCoverage":  self.gaze.summary.segment_coverage,
-                    "avgConfidence":    self.gaze.summary.avg_confidence,
+                    "awayCount": self.gaze.summary.away_count,
+                    "awayTotalMs": self.gaze.summary.away_total_ms,
+                    "segmentCoverage": self.gaze.summary.segment_coverage,
+                    "avgConfidence": self.gaze.summary.avg_confidence,
                 },
                 "segments": [
                     {
                         "segmentSequence": seg.meta.segment_sequence,
-                        "timestamp":       seg.meta.timestamp,
+                        "timestamp": seg.meta.timestamp,
                         "metricsSummary": {
                             "averageConcentration": seg.metrics_summary.average_concentration,
-                            "blinkCount":           seg.metrics_summary.blink_count,
-                            "isAwayDetected":       seg.metrics_summary.is_away_detected,
+                            "blinkCount": seg.metrics_summary.blink_count,
+                            "isAwayDetected": seg.metrics_summary.is_away_detected,
                         },
                         "rawData": [
                             {
-                                "offsetMs":   f.offset_ms,
+                                "offsetMs": f.offset_ms,
                                 "confidence": f.confidence,
                                 "gaze": {
-                                    "left":  {"x": f.gaze.left.x,  "y": f.gaze.left.y},
+                                    "left": {"x": f.gaze.left.x, "y": f.gaze.left.y},
                                     "right": {"x": f.gaze.right.x, "y": f.gaze.right.y},
                                 },
                                 "head": {
                                     "pitch": f.head.pitch,
-                                    "yaw":   f.head.yaw,
-                                    "roll":  f.head.roll,
+                                    "yaw": f.head.yaw,
+                                    "roll": f.head.roll,
                                 },
                             }
                             for f in seg.raw_data
                         ],
                         "events": [
                             {
-                                "type":      e.type.value,
-                                "offsetMs":  e.offset_ms,
+                                "type": e.type.value,
+                                "offsetMs": e.offset_ms,
                                 "direction": e.direction.value,
                             }
                             for e in seg.events
@@ -132,18 +134,18 @@ class MediaProcessingResult:
                 ],
             },
             "time": {
-                "timeScore":        self.time.time_score,
+                "timeScore": self.time.time_score,
                 "answerDurationMs": self.time.answer_duration_ms,
-                "limitMs":          self.time.limit_ms,
-                "ratio":            self.time.ratio,
+                "limitMs": self.time.limit_ms,
+                "ratio": self.time.ratio,
             },
             "reliability": {
                 "score": self.reliability.score,
                 "grade": self.reliability.grade.value,
                 "factors": {
                     "questionSuccessRate": self.reliability.factors.question_success_rate,
-                    "segmentCoverage":     self.reliability.factors.segment_coverage,
-                    "avgWordConfidence":   self.reliability.factors.avg_word_confidence,
+                    "segmentCoverage": self.reliability.factors.segment_coverage,
+                    "avgWordConfidence": self.reliability.factors.avg_word_confidence,
                 },
             },
             "phoneticCorrected": self.transcript.phonetic_corrected,
@@ -152,11 +154,11 @@ class MediaProcessingResult:
     def to_failed_payload(
         self,
         error_code: str,
-        message:    str,
+        message: str,
     ) -> WebhookFailedPayload:
         return WebhookFailedPayload(
-            interviewId=self.interview_id,
-            questionId= self.question_id,
-            errorCode=  error_code,
-            message=    message,
+            intvId=self.interview_id,
+            questionId=self.question_id,
+            errorCode=error_code,
+            message=message,
         )

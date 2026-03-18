@@ -2,12 +2,11 @@ from __future__ import annotations
 
 import logging
 
-from app.core.webhook import WebhookSender, RetryPolicy
-from app.core.config  import settings
-
-from app.media.application.port.result_webhook_port    import ResultWebhookPort
+from app.core.config import settings
+from app.core.webhook import RetryPolicy, WebhookSender
+from app.media.application.port.result_webhook_port import ResultWebhookPort
 from app.media.domain.pipeline.media_processing_result import MediaProcessingResult
-from app.media.interface.schema.webhook                import WebhookFailedPayload
+from app.media.interface.schema.webhook import WebhookFailedPayload
 
 logger = logging.getLogger(__name__)
 
@@ -18,8 +17,9 @@ class SpringWebhookAdapter(ResultWebhookPort):
 
     WebhookSender 기반 Spring Boot 결과 전송
     """
+
     def __init__(self, policy: RetryPolicy | None = None) -> None:
-        self._sender = WebhookSender(policy = policy or RetryPolicy())
+        self._sender = WebhookSender(policy=policy or RetryPolicy())
 
     async def send_success(self, result: MediaProcessingResult) -> None:
         """
@@ -34,29 +34,31 @@ class SpringWebhookAdapter(ResultWebhookPort):
             "Webhook 전송 시작 (DONE) url=%s interview_id=%s question_id=%s"
             " degraded=%s corrected_transcript=%s keyword_count=%d",
             settings.SPRING_WEBHOOK_URL,
-            result.interview_id, result.question_id,
+            result.interview_id,
+            result.question_id,
             result.degraded,
             result.transcript.corrected_transcript,
             len(result.keywords.candidates),
         )
 
         await self._sender.send(
-            url=    settings.SPRING_WEBHOOK_URL,
+            url=settings.SPRING_WEBHOOK_URL,
             payload=payload,
-            target= "spring_webhook",
+            target="spring_webhook",
         )
 
         logger.info(
             "Webhook 전송 완료 (DONE) interview_id=%s question_id=%s",
-            result.interview_id, result.question_id,
+            result.interview_id,
+            result.question_id,
         )
 
     async def send_failed(
         self,
         interview_id: int,
-        question_id:  int,
-        error_code:   str,
-        message:      str,
+        question_id: int,
+        error_code: str,
+        message: str,
     ) -> None:
         """
         실패시 전송
@@ -71,22 +73,25 @@ class SpringWebhookAdapter(ResultWebhookPort):
             "Webhook 전송 시작 (FAILED) url=%s interview_id=%s question_id=%s"
             " error_code=%s message=%s",
             settings.SPRING_WEBHOOK_URL,
-            interview_id, question_id,
-            error_code, message,
+            interview_id,
+            question_id,
+            error_code,
+            message,
         )
 
         await self._sender.send(
-            url=    settings.SPRING_WEBHOOK_URL,
+            url=settings.SPRING_WEBHOOK_URL,
             payload=WebhookFailedPayload(
-                interviewId=interview_id,
-                questionId= question_id,
-                errorCode=  error_code,
-                message=    message,
+                intvId=interview_id,
+                questionId=question_id,
+                errorCode=error_code,
+                message=message,
             ).model_dump(by_alias=True),
-            target= "spring_webhook_failed",
+            target="spring_webhook_failed",
         )
 
         logger.info(
             "Webhook 전송 완료 (FAILED) interview_id=%s question_id=%s",
-            interview_id, question_id,
+            interview_id,
+            question_id,
         )

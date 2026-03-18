@@ -1,31 +1,35 @@
 from __future__ import annotations
 
-import logging
 import asyncio
+import logging
 from dataclasses import dataclass
 
+from app.media.application.port import STTPort, TranscriptCorrectionPort
+from app.media.application.port.gaze_buffer_port import GazeBufferPort
+from app.media.application.port.scoring_config_port import ScoringConfigPort
+from app.media.application.service_helper.gaze_aggregator import GazeAggregator
+from app.media.application.service_helper.keyword_extractor import KeywordExtractor
+from app.media.application.service_helper.media_preprocessor import MediaPreprocessor
 from app.media.domain import (
-    STTResult,          # STT
-    CorrectionResult,   # Correction
-    TranscriptState,    # Transcript
-    GazeResult,         # Gaze
-    KeywordResult,      # Keyword
-    ScoringConfig, TimeScore, ReliabilityFactors, ReliabilityScore, # Scoring
-    MediaProcessingResult, # Pipeline
+    CorrectionResult,  # Correction
+    GazeResult,  # Gaze
+    KeywordResult,  # Keyword
+    MediaProcessingResult,  # Pipeline
+    ReliabilityFactors,
+    ScoringConfig,  # Scoring
+    STTResult,  # STT
+    TimeScore,
+    TranscriptState,  # Transcript
+    reliability,
 )
 
-from app.media.application.port                              import STTPort, TranscriptCorrectionPort
-from app.media.application.port.gaze_buffer_port             import GazeBufferPort
-from app.media.application.port.scoring_config_port          import ScoringConfigPort
-from app.media.application.service_helper.keyword_extractor  import KeywordExtractor
-from app.media.application.service_helper.gaze_aggregator    import GazeAggregator
-from app.media.application.service_helper.media_preprocessor import MediaPreprocessor
 logger = logging.getLogger(__name__)
 
 
 # ──────────────────────────────────────────────
 # 서비스 입력 커맨드 (Inbound DTO 대신 순수 도메인 커맨드)
 # ──────────────────────────────────────────────
+
 
 @dataclass(frozen=True)
 class ProcessMediaCommand:
@@ -35,17 +39,19 @@ class ProcessMediaCommand:
 
     router.py에서 schema → command 변환 후 service 호출
     """
-    interview_id:     int
-    question_id:      int
-    s3_key:           str
-    tech_stack:       tuple[str, ...]
+
+    interview_id: int
+    question_id: int
+    s3_key: str
+    tech_stack: tuple[str, ...]
     question_content: str
-    interview_type:   str = "default"  # Consul KV 분기 (MVP-2)
+    interview_type: str = "default"  # Consul KV 분기 (MVP-2)
 
 
 # ──────────────────────────────────────────────
 # 메인 서비스
 # ──────────────────────────────────────────────
+
 
 class MediaService:
     """
@@ -64,20 +70,20 @@ class MediaService:
 
     def __init__(
         self,
-        stt_port:           STTPort,
-        correction_port:    TranscriptCorrectionPort,
-        gaze_buffer:        GazeBufferPort,
-        scoring_config:     ScoringConfigPort,
-        keyword_extractor:  KeywordExtractor,
-        gaze_aggregator:    GazeAggregator,
-        media_preprocessor: MediaPreprocessor
+        stt_port: STTPort,
+        correction_port: TranscriptCorrectionPort,
+        gaze_buffer: GazeBufferPort,
+        scoring_config: ScoringConfigPort,
+        keyword_extractor: KeywordExtractor,
+        gaze_aggregator: GazeAggregator,
+        media_preprocessor: MediaPreprocessor,
     ) -> None:
-        self._stt          = stt_port
-        self._correction   = correction_port
-        self._gaze_buffer  = gaze_buffer
-        self._scoring      = scoring_config
-        self._keywords     = keyword_extractor
-        self._gaze_agg     = gaze_aggregator
+        self._stt = stt_port
+        self._correction = correction_port
+        self._gaze_buffer = gaze_buffer
+        self._scoring = scoring_config
+        self._keywords = keyword_extractor
+        self._gaze_agg = gaze_aggregator
         self._preprocessor = media_preprocessor
 
     # ──────────────────────────────────────────
@@ -102,23 +108,24 @@ class MediaService:
         """
         logger.info(
             "파이프라인 시작 interview_id=%s question_id=%s",
-            command.interview_id, command.question_id,
+            command.interview_id,
+            command.question_id,
         )
-        
+
         try:
             # 영상 전처리, duration_ms는 ffprobe에서 추출
             extracted = await asyncio.to_thread(
                 self._preprocessor.preprocess,
                 command.s3_key,
                 command.interview_id,
-                command.question_id
+                command.question_id,
             )
-        
+
             # STT
             stt_result = await self._run_stt(
-                    command=  command,
-                    wav_path= extracted.wav_path,
-                )
+                command=command,
+                wav_path=extracted.wav_path,
+            )
 
             # LLM CoT 교정
             correction_result = await self._run_correction(stt_result, command)
@@ -143,35 +150,37 @@ class MediaService:
 
             # 최종 집계
             degraded = (
-                transcript.degraded      # S5 실패
+                transcript.degraded  # S5 실패
                 or gaze_result.is_empty  # S7 Gaze 미수신
                 or keyword_result.is_empty  # S6 추출 실패
             )
 
             result = MediaProcessingResult(
-                interview_id=    command.interview_id,
-                question_id=     command.question_id,
+                interview_id=command.interview_id,
+                question_id=command.question_id,
                 question_content=command.question_content,
-                transcript=      transcript,
-                keywords=        keyword_result,
-                gaze=            gaze_result,
-                time=            time_score,
-                reliability=     reliability_score,
-                degraded=        degraded,
+                transcript=transcript,
+                keywords=keyword_result,
+                gaze=gaze_result,
+                time=time_score,
+                reliability=reliability_score,
+                degraded=degraded,
             )
 
             logger.info(
                 "파이프라인 완료 interview_id=%s question_id=%s degraded=%s",
-                command.interview_id, command.question_id, degraded,
+                command.interview_id,
+                command.question_id,
+                degraded,
             )
 
             return result
-        
+
         finally:
             # 성공/실패 무관하게 임시 파일 제거
             self._preprocessor.cleanup(
                 interview_id=command.interview_id,
-                question_id= command.question_id,
+                question_id=command.question_id,
             )
 
     async def buffer_gaze_segment(self, segment) -> None:
@@ -185,11 +194,7 @@ class MediaService:
     # Private: 단계별 실행 메서드
     # ──────────────────────────────────────────
 
-    async def _run_stt(
-        self,
-        command:  ProcessMediaCommand,
-        wav_path: str
-    ) -> STTResult:
+    async def _run_stt(self, command: ProcessMediaCommand, wav_path: str) -> STTResult:
         """
         Whisper STT
         실패 시 STTTranscriptionError → 파이프라인 FAILED
@@ -204,14 +209,15 @@ class MediaService:
             logger.warning(
                 "STT 신뢰도 낮음 interview_id=%s question_id=%s"
                 " language_probability=%.3f",
-                command.interview_id, command.question_id,
-                result.language_probability
+                command.interview_id,
+                command.question_id,
+                result.language_probability,
             )
 
         logger.info(
-            "STT 완료 interview_id=%s question_id=%s"
-            " model=%s words=%d",
-            command.interview_id, command.question_id,
+            "STT 완료 interview_id=%s question_id=%s" " model=%s words=%d",
+            command.interview_id,
+            command.question_id,
             result.stt_model_used.value,
             len(result.word_timestamps),
         )
@@ -235,13 +241,15 @@ class MediaService:
         if result.degraded:
             logger.warning(
                 "S5 LLM 교정 Degraded interview_id=%s question_id=%s",
-                command.interview_id, command.question_id,
+                command.interview_id,
+                command.question_id,
             )
         else:
             logger.info(
                 "S5 LLM 교정 완료 interview_id=%s question_id=%s"
                 " phonetic=%d term=%d",
-                command.interview_id, command.question_id,
+                command.interview_id,
+                command.question_id,
                 result.phonetic_correction_count,
                 result.term_correction_count,
             )
@@ -290,9 +298,7 @@ class MediaService:
             return KeywordResult(candidates=())
 
     async def _run_gaze_aggregation(
-        self,
-        command: ProcessMediaCommand,
-        answer_duration_ms: int
+        self, command: ProcessMediaCommand, answer_duration_ms: int
     ) -> GazeResult:
         """
         S7: Gaze 집계.
@@ -326,7 +332,7 @@ class MediaService:
         gaze_result: GazeResult,
         answer_duration_ms: int,
         config: ScoringConfig,
-    ) -> tuple[TimeScore, ReliabilityScore]:
+    ) -> tuple[TimeScore, reliability]:
         """
         S8: 시간 점수 + 신뢰도 점수 산출.
         Consul KV 정책(ScoringConfig) 기반.
@@ -342,7 +348,7 @@ class MediaService:
             segment_coverage=gaze_result.summary.segment_coverage,
             avg_word_confidence=stt_result.avg_word_confidence,
         )
-        reliability_score = ReliabilityScore.calculate(
+        reliability_score = reliability.calculate(
             factors=factors,
             config=config,
         )
