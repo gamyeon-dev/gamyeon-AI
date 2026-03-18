@@ -9,3 +9,4 @@ class STTModelType(str, Enum):
     """
     LARGE_V3 = "large-v3"
     MEDIUM   = "medium"
+    SMALL    = "small"
