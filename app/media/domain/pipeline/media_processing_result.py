@@ -2,13 +2,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from app.media.domain import (
-    GazeResult,
-    KeywordResult,
-    TimeScore,
-    TranscriptState,
-    reliability,
-)
+from app.media.domain.gaze import GazeResult
+from app.media.domain.keyword import KeywordResult
+from app.media.domain.scoring import TimeScore, reliability
+from app.media.domain.transcript import TranscriptState
 from app.media.interface.schema.webhook import (
     CorrectionPayload,
     KeywordCandidatePayload,
