@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
+
 from app.question.domain.interview_input import InterviewInput
+
 
 class StructuringPort(ABC):
 
@@ -7,7 +9,7 @@ class StructuringPort(ABC):
     async def structure(
         self,
         resume_text: str,
-        job_role: str,
+        job_role: str | None = None,
         portfolio_text: str | None = None,
         self_intro_text: str | None = None,
     ) -> InterviewInput:
