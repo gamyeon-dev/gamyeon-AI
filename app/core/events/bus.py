@@ -12,20 +12,20 @@ MVP-2 전환 시:
 - blinker 자체는 동기 설계
 - 핸들러가 코루틴인 경우 asyncio.create_task()로 래핑 → emit() 호출 즉시 반환 (non-blocking)→ 핸들러 실패가 emit() 호출자에 전파되지 않음
 """
+
 from __future__ import annotations
 
-import asyncio, logging
+import asyncio
+import inspect
+import logging
 from typing import Any, Callable, Coroutine
 
 from blinker import Signal
 
 logger = logging.getLogger(__name__)
 
-def emit(
-    signal:  Signal,
-    payload: dict[str, Any],
-    sender:  str = "system"
-) -> None:
+
+def emit(signal: Signal, payload: dict[str, Any], sender: str = "system") -> None:
     """
     이벤트 발행
 
@@ -43,32 +43,44 @@ def emit(
     if not receivers:
         logger.debug(
             "이벤트 구독자 없음 signal=%s sender=%s",
-            getattr(signal, "name", repr(signal)), sender,
+            getattr(signal, "name", repr(signal)),
+            sender,
         )
         return
 
     logger.debug(
         "이벤트 발행 signal=%s sender=%s receivers=%d",
-        getattr(signal, "name", repr(signal)), sender, len(receivers),
+        getattr(signal, "name", repr(signal)),
+        sender,
+        len(receivers),
     )
-
+    # signal.name 대신 안전하게 이름을 가져옵니다.
     for receiver in receivers:
-        if asyncio.inspect.iscoroutinefunction(receiver):
-            asyncio.create_task(
-                _safe_call(receiver, payload, signal.name)
-            )
+        signal_name = getattr(signal, "name", "anonymous")
+
+        if inspect.iscoroutinefunction(receiver):
+            try:
+                loop = asyncio.get_running_loop()
+                loop.create_task(  # signal.name -> signal_name 으로 변경
+                    _safe_call(receiver, payload, signal_name)
+                )
+                # 이벤트 루프가 없는 컨텍스트 -> asyncio.run()으로 폴백
+            except RuntimeError:
+                asyncio.run(_safe_call(receiver, payload, signal_name))
         else:
             try:
                 receiver(payload)
             except Exception as e:
                 logger.error(
                     "동기 핸들러 실패 signal=%s receiver=%s error=%s",
-                    getattr(signal, "name", repr(signal)), receiver.__name__, e,
+                    signal_name,
+                    getattr(receiver, "__name__", "unknown"),
+                    e,
                 )
 
 
 def subscribe(
-    signal:  Signal,
+    signal: Signal,
     handler: Callable[..., Coroutine | None],
 ) -> None:
     """
@@ -84,7 +96,7 @@ def subscribe(
         from app.core.events.signals import media_completed
         from app.feedback.application.service import FeedbackService
 
-        bus.subscribe(media_completed, feedback_service.on_media_completed)
+        bus.subscribe(media_completed, feedback_service.media_completed)
     """
     signal.connect(handler)
     logger.debug(
@@ -95,8 +107,8 @@ def subscribe(
 
 
 async def _safe_call(
-    handler:     Callable[..., Coroutine],
-    payload:     dict[str, Any],
+    handler: Callable[..., Coroutine],
+    payload: dict[str, Any],
     signal_name: str,
 ) -> None:
     """비동기 핸들러 안전 실행. 예외 로깅 후 무시."""
@@ -105,5 +117,7 @@ async def _safe_call(
     except Exception as e:
         logger.error(
             "비동기 핸들러 실패 signal=%s handler=%s error=%s",
-            signal_name, handler.__name__, e,
+            signal_name,
+            handler.__name__,
+            e,
         )

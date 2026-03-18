@@ -13,23 +13,23 @@ from __future__ import annotations
 
 import json
 import logging
-from datetime import datetime, timezone 
+from datetime import datetime, timezone
 from typing import Any
 
 import httpx
 from tenacity import (
+    RetryError,
+    before_sleep_log,
     retry,
     retry_if_exception_type,
     stop_after_attempt,
     wait_exponential,
-    before_sleep_log,
-    RetryError,
 )
 
 from .retry_policy import RetryPolicy
 
-logger         = logging.getLogger(__name__)
-dlq_logger     = logging.getLogger("dlq")  # DLQ 전용 로거 -> MVP-2: Loki 핸들러 교체
+logger = logging.getLogger(__name__)
+dlq_logger = logging.getLogger("dlq")  # DLQ 전용 로거 -> MVP-2: Loki 핸들러 교체
 
 
 class WebhookSender:
@@ -54,12 +54,7 @@ class WebhookSender:
     def __init__(self, policy: RetryPolicy | None = None) -> None:
         self._policy = policy or RetryPolicy()
 
-    async def send(
-        self,
-        url:          str,
-        payload:      dict[str, Any],
-        target:       str
-    ) -> None:
+    async def send(self, url: str, payload: dict[str, Any], target: str) -> None:
         """
         Webhook 전송 진입점
 
@@ -76,38 +71,33 @@ class WebhookSender:
 
         except RetryError as e:
             self._write_dlq_log(
-                target=      target,
-                url=         url,
-                payload=     payload,
-                retry_count= self._policy.max_attempts,
-                last_error=  str(e.last_attempt.exception()),
+                target=target,
+                url=url,
+                payload=payload,
+                retry_count=self._policy.max_attempts,
+                last_error=str(e.last_attempt.exception()),
             )
 
         except Exception as e:
             # 재시도 대상 외 예외 (4xx 등)
-            logger.error(
-                "Webhook 전송 불가 target=%s error=%s",
-                target, e
-            )
+            logger.error("Webhook 전송 불가 target=%s error=%s", target, e)
             self._write_dlq_log(
-                target=      target,
-                url=         url,
-                payload=     payload,
-                retry_count= 0,
-                last_error=  str(e),
+                target=target,
+                url=url,
+                payload=payload,
+                retry_count=0,
+                last_error=str(e),
             )
 
     # Private
     async def _send_with_retry(
-        self,
-        url:          str,
-        payload:      dict[str, Any],
-        target:       str
+        self, url: str, payload: dict[str, Any], target: str
     ) -> None:
         """
         tenacity 재시도 래퍼.
         RetryPolicy 값을 tenacity 데코레이터에 동적 적용.
         """
+
         @retry(
             retry=retry_if_exception_type(
                 (httpx.TransportError, httpx.TimeoutException, _RetryableError)
@@ -118,7 +108,7 @@ class WebhookSender:
                 min=self._policy.backoff_seconds,
             ),
             before_sleep=before_sleep_log(logger, logging.WARNING),
-            reraise=False,       # RetryError로 래핑
+            reraise=False,  # RetryError로 래핑
         )
         async def _attempt() -> None:
             async with httpx.AsyncClient(
@@ -131,28 +121,25 @@ class WebhookSender:
                 )
 
                 if response.status_code >= 500:
-                    raise _RetryableError(
-                        f"5xx 응답: {response.status_code}"
-                    )
+                    raise _RetryableError(f"5xx 응답: {response.status_code}")
 
                 if response.status_code >= 400:
-                    raise _NonRetryableError(
-                        f"4xx 응답: {response.status_code}"
-                    )
+                    raise _NonRetryableError(f"4xx 응답: {response.status_code}")
 
             logger.info(
-                "Webhook 전송 성공 target=%s",target,
+                "Webhook 전송 성공 target=%s",
+                target,
             )
 
         await _attempt()
 
     def _write_dlq_log(
         self,
-        target:       str,
-        url:          str,
-        payload:      dict[str, Any],
-        retry_count:  int,
-        last_error:   str
+        target: str,
+        url: str,
+        payload: dict[str, Any],
+        retry_count: int,
+        last_error: str,
     ) -> None:
         """
         DLQ 구조화 로그 기록.
@@ -163,29 +150,32 @@ class WebhookSender:
         grep 복구 예시:
           grep "webhook_dead_letter" /var/log/dlq/dlq.log
           grep '"target": "spring_webhook"' /var/log/dlq/dlq.log
-          grep '"interviewId": "123"' /var/log/dlq/dlq.log | jq .
+          grep '"intvId": "123"' /var/log/dlq/dlq.log | jq .
           grep '"reportId": "456"' /var/log/dlq/dlq.log | jq .
         """
         dlq_logger.critical(
             json.dumps(
                 {
-                    "event":        "webhook_dead_letter",
-                    "target":       target,
-                    "url":          url,
-                    "payload":      payload,
-                    "retry_count":  retry_count,
-                    "last_error":   last_error,
-                    "failed_at":    datetime.now(timezone.utc).isoformat(),
+                    "event": "webhook_dead_letter",
+                    "target": target,
+                    "url": url,
+                    "payload": payload,
+                    "retry_count": retry_count,
+                    "last_error": last_error,
+                    "failed_at": datetime.now(timezone.utc).isoformat(),
                 },
                 ensure_ascii=False,
-                default=str #모르는 데이터 타입이 나오면 일단 문자열로 강제 변환
+                default=str,  # 모르는 데이터 타입이 나오면 일단 문자열로 강제 변환
             )
         )
 
+
 # 내부 예외 (tenacity 재시도 분기용) -> Exception 부분이 공통으로 생기면 이전 예정
+
 
 class _RetryableError(Exception):
     """5xx — 재시도 대상."""
+
 
 class _NonRetryableError(Exception):
     """4xx — 재시도 제외."""
