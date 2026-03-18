@@ -1,0 +1,77 @@
+﻿{
+  "intvId": 11,
+  "userId": 3,
+  "callback": "http://localhost:9000/internal/v1/reports/callback",
+  "feedbacks": [
+    {
+      "questionSetId": 101, "index": 1, "questionContent": "본인의 강점을 말해주세요",
+      "status": "SUCCEED", "reliability": 85, "logicScore": 80, "answerCompositionScore": 75, "gazeScore": 82, "timeScore": 91,
+      "answerDurationMs": 54500, "keywordCount": 5,
+      "characteristic": "핵심 개념을 정확히 이해하고 있으나 설명 구조가 다소 산만함",
+      "answerSummary": "Redis 캐싱과 Docker 컨테이너 환경 구성 경험을 중심으로 답변함.",
+      "strength": "실제 프로젝트 경험을 근거로 들어 답변의 신뢰성을 높였습니다.",
+      "improvement": "PREP 구조를 활용하면 답변의 전달력이 향상될 것입니다.",
+      "feedbackBadges": ["경험 기반 답변", "구조 보완 필요"]
+    },
+    {
+      "questionSetId": 102, "index": 2, "questionContent": "팀 내 갈등 상황을 어떻게 해결했나요?",
+      "status": "SUCCEED", "reliability": 90, "logicScore": 85, "answerCompositionScore": 88, "gazeScore": 78, "timeScore": 85,
+      "answerDurationMs": 62000, "keywordCount": 4,
+      "characteristic": "감정적인 대처보다는 데이터와 목표 중심의 해결책을 제시함",
+      "answerSummary": "코드 리뷰 과정에서 발생한 아키텍처 견해 차이를 성능 벤치마킹을 통해 해결한 사례.",
+      "strength": "객관적인 지표를 활용해 동료를 설득한 과정이 논리적입니다.",
+      "improvement": "상대방의 의견에서 배운 점을 한 문장 추가하면 포용력이 더 돋보일 것입니다.",
+      "feedbackBadges": ["문제 해결능력 우수", "협업 마인드"]
+    },
+    {
+      "questionSetId": 103, "index": 3, "questionContent": "MSA 구조의 장단점에 대해 설명해주세요",
+      "status": "SUCCEED", "reliability": 75, "logicScore": 92, "answerCompositionScore": 80, "gazeScore": 85, "timeScore": 78,
+      "answerDurationMs": 48000, "keywordCount": 6,
+      "characteristic": "기술적 개념 이해도가 매우 높고 시스템 트레이드 오프를 잘 파악함",
+      "answerSummary": "서비스 간 독립성과 배포 편의성을 장점으로, 트랜잭션 관리와 네트워크 복잡성을 단점으로 언급.",
+      "strength": "이론에 그치지 않고 실제 운영 시의 복잡성을 정확히 짚어냈습니다.",
+      "improvement": "단점에 대한 구체적인 대응 전략(예: Saga 패턴)을 덧붙이면 전문성이 강화됩니다.",
+      "feedbackBadges": ["기술 전문성", "인프라 이해도"]
+    },
+    {
+      "questionSetId": 104, "index": 4, "questionContent": "가장 어려웠던 기술적 트러블슈팅 경험은 무엇인가요?",
+      "status": "SUCCEED", "reliability": 88, "logicScore": 84, "answerCompositionScore": 82, "gazeScore": 80, "timeScore": 95,
+      "answerDurationMs": 75000, "keywordCount": 7,
+      "characteristic": "디버깅 과정을 단계별로 설명하여 청자의 몰입감을 높임",
+      "answerSummary": "배포 후 간헐적으로 발생하는 메모리 누수 현상을 힙 덤프 분석으로 해결한 경험.",
+      "strength": "문제 원인을 찾기 위해 사용한 도구와 분석 과정이 체계적입니다.",
+      "improvement": "해결 이후 재발 방지를 위해 도입한 모니터링 체계를 강조하면 완벽합니다.",
+      "feedbackBadges": ["분석적 사고", "끈기 있는 태도"]
+    },
+    {
+      "questionSetId": 105, "index": 5, "questionContent": "새로운 기술을 학습하는 본인만의 방법이 있나요?",
+      "status": "SUCCEED", "reliability": 92, "logicScore": 78, "answerCompositionScore": 85, "gazeScore": 90, "timeScore": 82,
+      "answerDurationMs": 42000, "keywordCount": 3,
+      "characteristic": "자기주도적 학습 습관이 잘 형성되어 있음",
+      "answerSummary": "공식 문서를 정독한 후, 작은 토이 프로젝트에 바로 적용하며 체득하는 스타일.",
+      "strength": "실행 중심의 학습 태도가 개발자로서 성장에 큰 강점이 됩니다.",
+      "improvement": "학습한 내용을 블로그나 팀 위키에 공유하여 조직에 기여한 경험을 추가해보세요.",
+      "feedbackBadges": ["성장 가능성", "자기주도학습"]
+    },
+    {
+      "questionSetId": 106, "index": 6, "questionContent": "비전공자나 기획자와 소통할 때 중요하게 생각하는 점은?",
+      "status": "SUCCEED", "reliability": 80, "logicScore": 82, "answerCompositionScore": 90, "gazeScore": 88, "timeScore": 88,
+      "answerDurationMs": 51000, "keywordCount": 4,
+      "characteristic": "상대방의 언어로 기술적 용어를 치환하는 능력이 좋음",
+      "answerSummary": "기술적 제약 사항을 비유를 통해 설명하여 의사결정을 도운 사례.",
+      "strength": "상대방의 눈높이에 맞춘 설명 덕분에 원활한 협업이 기대됩니다.",
+      "improvement": "결과물뿐만 아니라 과정에서의 중간 공유 빈도에 대해 언급하면 더 신뢰를 얻을 것입니다.",
+      "feedbackBadges": ["커뮤니케이터", "배려심"]
+    },
+    {
+      "questionSetId": 107, "index": 7, "questionContent": "5년 후 어떤 개발자가 되고 싶으신가요?",
+      "status": "SUCCEED", "reliability": 85, "logicScore": 80, "answerCompositionScore": 82, "gazeScore": 85, "timeScore": 80,
+      "answerDurationMs": 45000, "keywordCount": 4,
+      "characteristic": "비전이 명확하며 회사와 함께 성장하려는 의지가 보임",
+      "answerSummary": "기술적 깊이를 갖춘 시니어 개발자를 넘어, 비즈니스 가치를 이해하는 아키텍트 지향.",
+      "strength": "목표가 구체적이고 이를 위해 현재 노력 중인 사항이 연결되어 있습니다.",
+      "improvement": "해당 목표가 회사의 비전과 어떻게 맞닿아 있는지 강조하면 더 설득력이 있습니다.",
+      "feedbackBadges": ["뚜렷한 목표의식", "열정적인"]
+    }
+  ]
+}

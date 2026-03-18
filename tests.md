@@ -1,6 +1,13 @@
-
+uv run uvicorn app.main:app --reload --port 8000
+uv run callback_receiver.py
+들여쓰기 확인 !! 
 # webhook 
 PS C:\Users\user\Documents\GitHub\gamyeon-AI> uv run python callback_receiver.py
+### report webhook 
+(gamyeon-ai) PS C:\Users\user\Documents\GitHub\gamyeon-AI> curl.exe -X POST "http://localhost:8000/internal/v1/reports/generate" `
+>>   -H "Content-Type: application/json; charset=utf-8" `
+>>   -d "@request.json"   
+
 
 # question - test 
 ```
