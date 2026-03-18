@@ -77,8 +77,8 @@ class ProcessMediaUseCase:
         except (MediaDownloadError, MediaValidationError, AudioExtractionError) as e:
             logger.error(
                 "영상 전처리 실패 FAILED 처리 "
-                "interview_id=%s question_id=%s error=%s",
-                command.interview_id, command.question_id, e,
+                "interview_id=%s question_id=%s s3_key=%s error=%s",
+                command.interview_id, command.question_id, command.s3_key, e,
             )
             await self._webhook.send_failed(
                 interview_id=command.interview_id,
