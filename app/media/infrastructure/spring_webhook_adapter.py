@@ -83,9 +83,8 @@ class SpringWebhookAdapter(ResultWebhookPort):
             url=settings.SPRING_WEBHOOK_URL,
             payload=WebhookFailedPayload(
                 intvId=interview_id,
-                questionId=question_id,
-                errorCode=error_code,
-                message=message,
+                questionSetId=question_id,
+                errorMessage=message,
             ).model_dump(by_alias=True),
             target="spring_webhook_failed",
         )

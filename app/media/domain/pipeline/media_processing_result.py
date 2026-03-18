@@ -39,26 +39,27 @@ class MediaProcessingResult:
     def to_spring_webhook_payload(self) -> WebhookSuccessPayload:
         return WebhookSuccessPayload(
             intvId=self.interview_id,
-            questionId=self.question_id,
+            questionSetId=self.question_id,
             degraded=self.degraded,
-            transcript=TranscriptPayload(
-                rawTranscript=self.transcript.raw_transcript,
-                correctedTranscript=self.transcript.corrected_transcript,
+            answerText=TranscriptPayload(
+                rawTranscript=       self.transcript.raw_transcript,
+                phoneticTranscript=  self.transcript.phonetic_corrected or "",
+                correctedTranscript= self.transcript.corrected_transcript,
                 corrections=[
                     CorrectionPayload(
-                        original=c.original,
-                        corrected=c.corrected,
-                        position=c.position,
+                        original=  c.original,
+                        corrected= c.corrected,
+                        position=  c.position,
                         confidence=c.confidence,
-                        type=c.type.value,
+                        type=      c.type.value,
                     )
                     for c in self.transcript.corrections
                 ],
                 wordTimestamps=[
                     WordTimestampPayload(
-                        word=wt.word,
-                        start=wt.start,
-                        end=wt.end,
+                        word=       wt.word,
+                        start=      wt.start,
+                        end=        wt.end,
                         probability=wt.probability,
                     )
                     for wt in self.transcript.word_timestamps
@@ -67,8 +68,8 @@ class MediaProcessingResult:
             keywords=KeywordsPayload(
                 candidates=[
                     KeywordCandidatePayload(
-                        term=k.term,
-                        count=k.count,
+                        term=    k.term,
+                        count=   k.count,
                         category=k.category,
                     )
                     for k in self.keywords.candidates
@@ -89,8 +90,7 @@ class MediaProcessingResult:
             "status": "DONE",
             "questionContent": self.question_content,
             "transcript": {
-                **base["transcript"],
-                "phoneticTranscript": self.transcript.phonetic_corrected or "",
+                **base["answerText"],
             },
             "gaze": {
                 "gazeScore": self.gaze.gaze_score,

@@ -31,6 +31,7 @@ class CorrectionPayload(BaseModel):
 
 class TranscriptPayload(BaseModel):
     rawTranscript: str
+    phoneticTranscript: str
     correctedTranscript: str
     corrections: list[CorrectionPayload]
     wordTimestamps: list[WordTimestampPayload]
@@ -53,12 +54,12 @@ class WebhookSuccessPayload(BaseModel):
     Spring Boot가 수신 후 DB 저장 + 프론트 전송 담당
     """
 
-    interview_id: int = Field(..., alias="intvId")
-    question_id: int = Field(..., alias="questionId")
-    status: Literal["DONE"] = "DONE"
-    degraded: bool
-    transcript: TranscriptPayload
-    keywords: KeywordsPayload
+    interview_id:  int                  = Field(..., alias="intvId")
+    question_id:   int                  = Field(..., alias="questionSetId")
+    degraded:      bool
+    answer_text:   TranscriptPayload    = Field(..., alias="answerText")
+    keywords:      KeywordsPayload
+    error_message: None                 = Field(None, alias="errorMessage")
 
 
 # 처리 실패 페이로드 (FAILED)
@@ -68,9 +69,8 @@ class WebhookFailedPayload(BaseModel):
     STT 실패 등 복구 불가 오류 시 전송
     """
 
-    interview_id: int = Field(..., alias="intvId")
-    question_id: int = Field(..., alias="questionId")
-    status: Literal["FAILED"] = "FAILED"
-    degraded: bool = False
-    errorCode: str
-    message: str
+    interview_id:  int              = Field(..., alias="intvId")
+    question_id:   int              = Field(..., alias="questionSetId")
+    status:        Literal["FAILED"] = "FAILED"
+    answer_text:   None             = Field(None, alias="answerText")
+    error_message: str              = Field(..., alias="errorMessage")
