@@ -85,6 +85,7 @@ class MediaProcessingResult:
         return {
             **base,
             "status": "DONE",
+            "questionId": self.question_id,
             "questionContent": self.question_content,
             "transcript": {
                 **base["answerText"],
