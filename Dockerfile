@@ -14,9 +14,10 @@ RUN uv sync --frozen --no-dev
 FROM python:3.12-slim
 WORKDIR /app
 
-# 시스템 패키지 설치 (ffmpeg: 오디오 추출 및 ffprobe 포함)
+# 시스템 패키지 설치 (ffmpeg: 오디오 추출, openjdk: konlpy 의존성)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
+    default-jre-headless \
     && rm -rf /var/lib/apt/lists/*
 
 # 빌드 환경에서 설치된 가상환경만 가져오기
