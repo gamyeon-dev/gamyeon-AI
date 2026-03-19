@@ -61,6 +61,7 @@ _WHITELIST: dict[str, str] = {
     "HTML": "FE", "CSS": "FE", "Sass": "FE", "Tailwind": "FE",
     "Webpack": "FE", "Vite": "FE", "Babel": "FE",
     "Redux": "FE", "Zustand": "FE", "Recoil": "FE",
+    "TanStack Query": "FE", "React Query": "FE", "SWR": "FE",
     "SSR": "FE", "CSR": "FE", "SPA": "FE",
 
     # ── AI / ML ───────────────────────────────────────────────────
@@ -120,13 +121,22 @@ class KeywordExtractorImpl(KeywordExtractor):
         3. 출현 횟수 집계 → 상위 10개
         """
         if not text.strip():
+            logger.warning("키워드 추출 입력 텍스트 비어있음")
             return KeywordResult(candidates=())
 
-        try:
-            okt     = self._get_okt()
-            tokens  = okt.morphs(text, stem=True)
-            counter = Counter(tokens)
+        logger.info("키워드 추출 시작 text_length=%d text_preview=%s", len(text), text[:80])
 
+        # 형태소 분석 (konlpy 없으면 빈 counter로 fallback)
+        counter: Counter = Counter()
+        try:
+            okt    = self._get_okt()
+            tokens = okt.morphs(text, stem=True)
+            counter = Counter(tokens)
+            logger.debug("형태소 분석 결과 token_count=%d tokens=%s", len(tokens), tokens[:20])
+        except Exception as e:
+            logger.warning("형태소 분석 실패 — 원문 직접 매칭으로 진행: %s", e)
+
+        try:
             candidates: list[KeywordCandidate] = []
             for term, category in _WHITELIST.items():
                 count = self._count_term(term, text, counter)
@@ -147,8 +157,9 @@ class KeywordExtractorImpl(KeywordExtractor):
             )[:_MAX_CANDIDATES]
 
             logger.info(
-                "키워드 추출 완료 total=%d top=%d",
+                "키워드 추출 완료 total=%d top=%d terms=%s",
                 len(candidates), len(top_candidates),
+                [c.term for c in top_candidates],
             )
 
             return KeywordResult(candidates=tuple(top_candidates))
