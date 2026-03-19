@@ -172,8 +172,8 @@ class KeywordExtractorImpl(KeywordExtractor):
     ) -> int:
         """
         복합어 (예: Spring Boot) 는 원문 직접 매칭.
-        단일어는 형태소 분석 결과 counter 활용.
+        단일어는 형태소 counter + 원문 직접 매칭 병행 (둘 중 큰 값).
         """
         if " " in term:
             return text.lower().count(term.lower())
-        return counter.get(term, 0)
+        return max(counter.get(term, 0), text.lower().count(term.lower()))
