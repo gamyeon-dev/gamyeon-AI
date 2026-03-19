@@ -98,11 +98,13 @@ class StaticScoreAdapter(ReportGeneratorPort):
         if avg_count == 0:
             return 10
         elif avg_count < 2:
-            return 40
-        elif avg_count <= 3:
-            return 80
+            return 50
+        elif avg_count < 4:
+            return 70
+        elif avg_count < 6:
+            return 85
         else:
-            return 60
+            return 95
 
     def calc_total_score(self, logic: int, answer_composition: int, gaze: int,
                          time_management: int, keyword: int) -> int:
