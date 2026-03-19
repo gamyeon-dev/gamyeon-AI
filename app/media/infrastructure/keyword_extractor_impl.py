@@ -22,20 +22,80 @@ logger = logging.getLogger(__name__)
 # IT 기술 용어 화이트리스트
 # { 용어: 카테고리 }
 _WHITELIST: dict[str, str] = {
-    # Backend
-    "Spring Boot": "BE", "JPA": "BE", "QueryDSL": "BE",
-    "Redis": "BE", "MySQL": "BE", "PostgreSQL": "BE",
-    "Kafka": "BE", "RabbitMQ": "BE", "REST API": "BE",
-    # Frontend
-    "React": "FE", "Vue": "FE", "TypeScript": "FE",
-    "Next.js": "FE", "Webpack": "FE",
-    # AI
-    "PyTorch": "AI", "TensorFlow": "AI", "FastAPI": "AI",
-    "LangChain": "AI", "Whisper": "AI",
-    # DevOps
-    "Docker": "DevOps", "Kubernetes": "DevOps",
-    "GitHub Actions": "DevOps", "Jenkins": "DevOps",
-    "AWS": "DevOps", "Terraform": "DevOps",
+    # ── Backend Framework / Library ───────────────────────────────
+    "Spring": "BE", "Spring Boot": "BE", "Spring MVC": "BE",
+    "Spring Security": "BE", "Spring Data": "BE", "Spring Cloud": "BE",
+    "JPA": "BE", "Hibernate": "BE", "QueryDSL": "BE", "MyBatis": "BE",
+    "Django": "BE", "Flask": "BE", "FastAPI": "BE", "Express": "BE",
+    "NestJS": "BE", "Laravel": "BE", "Ruby on Rails": "BE",
+    "gRPC": "BE", "GraphQL": "BE", "REST API": "BE", "RESTful": "BE",
+    "WebSocket": "BE", "OAuth": "BE", "JWT": "BE",
+
+    # ── Database ──────────────────────────────────────────────────
+    "MySQL": "BE", "PostgreSQL": "BE", "MariaDB": "BE", "Oracle": "BE",
+    "MongoDB": "BE", "DynamoDB": "BE", "Cassandra": "BE",
+    "Elasticsearch": "BE", "OpenSearch": "BE",
+    "Redis": "BE", "Memcached": "BE",
+    "SQLite": "BE", "MSSQL": "BE",
+
+    # ── Message Queue / Event ─────────────────────────────────────
+    "Kafka": "BE", "RabbitMQ": "BE", "SQS": "BE", "ActiveMQ": "BE",
+    "Pub/Sub": "BE", "이벤트 드리븐": "BE", "Event Driven": "BE",
+    "MSA": "BE", "마이크로서비스": "BE", "Microservice": "BE",
+
+    # ── Architecture / Design Pattern ────────────────────────────
+    "MVC": "BE", "MVP": "BE", "MVVM": "BE",
+    "DDD": "BE", "TDD": "BE", "BDD": "BE",
+    "OOP": "BE", "객체지향": "BE", "함수형": "BE",
+    "헥사고날": "BE", "클린 아키텍처": "BE", "Clean Architecture": "BE",
+    "SOLID": "BE", "디자인 패턴": "BE", "Design Pattern": "BE",
+    "싱글톤": "BE", "팩토리": "BE", "옵저버": "BE", "전략 패턴": "BE",
+    "캐싱": "BE", "Caching": "BE", "인덱스": "BE", "Index": "BE",
+    "트랜잭션": "BE", "Transaction": "BE", "동시성": "BE", "Concurrency": "BE",
+    "비동기": "BE", "Async": "BE", "멀티스레드": "BE", "멀티쓰레드": "BE",
+
+    # ── Frontend ──────────────────────────────────────────────────
+    "React": "FE", "Vue": "FE", "Angular": "FE", "Svelte": "FE",
+    "Next.js": "FE", "Nuxt.js": "FE", "Gatsby": "FE",
+    "TypeScript": "FE", "JavaScript": "FE",
+    "HTML": "FE", "CSS": "FE", "Sass": "FE", "Tailwind": "FE",
+    "Webpack": "FE", "Vite": "FE", "Babel": "FE",
+    "Redux": "FE", "Zustand": "FE", "Recoil": "FE",
+    "SSR": "FE", "CSR": "FE", "SPA": "FE",
+
+    # ── AI / ML ───────────────────────────────────────────────────
+    "PyTorch": "AI", "TensorFlow": "AI", "Keras": "AI",
+    "LangChain": "AI", "Whisper": "AI", "GPT": "AI",
+    "LLM": "AI", "RAG": "AI", "Fine-tuning": "AI", "파인튜닝": "AI",
+    "머신러닝": "AI", "딥러닝": "AI", "Machine Learning": "AI", "Deep Learning": "AI",
+    "자연어처리": "AI", "NLP": "AI", "컴퓨터비전": "AI", "Computer Vision": "AI",
+    "Scikit-learn": "AI", "Pandas": "AI", "NumPy": "AI",
+    "Hugging Face": "AI", "OpenAI": "AI", "벡터 DB": "AI", "Vector DB": "AI",
+
+    # ── DevOps / Infra ────────────────────────────────────────────
+    "Docker": "DevOps", "Kubernetes": "DevOps", "k8s": "DevOps",
+    "GitHub Actions": "DevOps", "Jenkins": "DevOps", "GitLab CI": "DevOps",
+    "CircleCI": "DevOps", "ArgoCD": "DevOps",
+    "AWS": "DevOps", "GCP": "DevOps", "Azure": "DevOps", "Naver Cloud": "DevOps",
+    "EC2": "DevOps", "S3": "DevOps", "Lambda": "DevOps", "EKS": "DevOps",
+    "Terraform": "DevOps", "Ansible": "DevOps", "Helm": "DevOps",
+    "Nginx": "DevOps", "Apache": "DevOps", "Linux": "DevOps",
+    "CI/CD": "DevOps", "배포": "DevOps", "모니터링": "DevOps",
+    "Prometheus": "DevOps", "Grafana": "DevOps", "ELK": "DevOps",
+
+    # ── Collaboration / Version Control ───────────────────────────
+    "Git": "협업", "GitHub": "협업", "GitLab": "협업", "Bitbucket": "협업",
+    "Jira": "협업", "Confluence": "협업", "Notion": "협업",
+    "애자일": "협업", "스크럼": "협업", "Agile": "협업", "Scrum": "협업",
+    "코드 리뷰": "협업", "Code Review": "협업",
+
+    # ── 한글 alias (STT가 한글로 전사한 경우) ────────────────────
+    "스프링": "BE", "스프링부트": "BE", "제이피에이": "BE",
+    "리액트": "FE", "뷰": "FE", "타입스크립트": "FE", "자바스크립트": "FE",
+    "도커": "DevOps", "쿠버네티스": "DevOps", "젠킨스": "DevOps",
+    "카프카": "BE", "레디스": "BE", "마이에스큐엘": "BE",
+    "깃허브": "협업", "깃": "협업", "깃랩": "협업",
+    "지피티": "AI", "엘엘엠": "AI",
 }
 
 _MAX_CANDIDATES = 10
